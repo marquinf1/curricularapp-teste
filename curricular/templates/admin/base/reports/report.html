@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> {{ tituloRelatorio }} </title>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    <style>
+        .header {
+            top: 0px;
+            text-align: center;
+
+        }
+
+        .header-sys-logo {
+            float: left;
+        }
+
+        .header-company-logo {
+            right: 20px;
+            position: absolute;
+        }
+
+        .header-content {
+            right: 200px;
+            position: absolute;
+        }
+
+        .header-sys-logo, .header-company-logo, .header-content {
+            display: inline-block;
+        }
+
+
+        .image-header-sys-logo {
+            width: 75px;
+            height: 80px;
+        }
+
+        .image-header-company-logo {
+            width: 75px;
+            height: 80px;
+        }
+
+
+        .footer {
+            width: 100%;
+            text-align: center;
+        }
+    </style>
+
+</head>
+<body>
+<div class="header">
+
+    <div class="header-sys-logo">
+        <img src="{% static 'images/ufvjmsemassinatura.png' %} " class="image-header-sys-logo">
+    </div>
+
+    <div class="header-content">
+        <div class="row wrapper page-heading">
+            <div class="col-lg-12">
+                <h3 style="text-align:center">Universidade Federal dos Vales do Jequitinhonha e Mucuri</h3>
+                <h3 style="text-align:center">Laboratório de Otimização e Inteligência Artificial</h3>
+                <h3 style="text-align:center">{% block tituloRelatorio %}
+                    {{ tituloRelatorio }} {% endblock %}</h3>
+            </div>
+
+        </div>
+    </div>
+    <div class="header-company-logo">
+        <img src="{% static 'images/curricularsemfundo2.png' %} " class="image-header-company-logo">
+    </div>
+</div>
+
+
+<!-- Content -->
+{% block content %}
+{% endblock %}
+
+
+<!-- Footer -->
+<div class="footer">
+
+    <div id="footer-sysname">
+        <div class="pull-right">
+            Laboratório de Otimização e Inteligência Artificial | UFVJM/DECOM
+        </div>
+        <div class="pull-left">
+            <div>
+                <strong>&copy; Copyright<script>document.write(" "+new Date().getFullYear());</script>, Curricular</strong>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

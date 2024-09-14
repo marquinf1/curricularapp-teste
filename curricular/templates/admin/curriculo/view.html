@@ -1,0 +1,93 @@
+{% extends 'admin/base/base.html' %}
+{% block pageTitle %} Administração de currículos {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de currículos</h2>
+            <div class="pull-right">
+                <a class="btn btn-sm btn-primary pull-right" title="Voltar"
+                   href="{% url 'curriculo_index' %}"><i class="fa fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+{#            <nav aria-label="breadcrumb">#}
+{#                <ol class="breadcrumb">#}
+{#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+{#                </ol>#}
+{#            </nav>#}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5><strong>Detalhes do curriculo</strong></h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Instituicao:</strong>
+                                {{ curriculo.curso.instituicao.nome }} - {{ curriculo.curso.instituicao.sigla }}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Curso:</strong>
+                                {{ curriculo.curso.nome }} - {{ curriculo.curso.codigo }}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Nome:</strong>
+                                {{ curriculo.nome }}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Quantidade de disciplinas:</strong>
+                                {{ curriculo.quantidadeDisciplinas }}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Quantidade de períodos:</strong>
+                                {{ curriculo.quantidadePeriodos }}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Quantidade máxima de disciplinas por período:</strong>
+                                {{ curriculo.quantidadeMaximaDisciplinasPorPeriodo }}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Quantidade mínima de disciplinas por período:</strong>
+                                {{ curriculo.quantidadeMinimaDisciplinasPorPeriodo }}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Quantidade máxima de créditos por período:</strong>
+                                {{ curriculo.cargaMaximaPorPeriodo }}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Quantidade mínima de créditos por período:</strong>
+                                {{ curriculo.cargaMinimaPorPeriodo }}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Quantidade de períodos do ciclo básico:</strong>
+                                {{ curriculo.quantidadePeriodosCicloBasico }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

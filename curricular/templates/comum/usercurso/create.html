@@ -1,0 +1,101 @@
+{% extends 'comum/base/base.html' %}
+{% block pageTitle %} Administração de cursos do usuário {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de cursos do usuário</h2>
+            <div class="pull-right">
+                <a class="btn btn-sm btn-primary pull-right" title="Voltar"
+                   href="{% url 'comum_usercurso_index' %}"><i class="fa fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+            {#            <nav aria-label="breadcrumb">#}
+            {#                <ol class="breadcrumb">#}
+            {#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+            {#                </ol>#}
+            {#            </nav>#}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox float-e-margins">
+                <form id="create_form" method="POST" action="{% url 'comum_usercurso_create' %}">
+                    {% csrf_token %}
+                    <div class="ibox-title">
+                        <h5><strong>Definir curso do usuário</strong></h5>
+                    </div>
+                    {% if 'success' == message %}
+                        <div class="alert alert-success" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Usuário associado ao curso com sucesso!
+                        </div>
+                    {% endif %}
+                    {% if 'usuarioAssociadoCurso' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Usuário já está associado a este curso!
+                        </div>
+                    {% endif %}
+                    {% if 'estudanteJaVinculadoAAlgumCurso' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! Um estudante só pode estar vinculado a um curso!
+                        </div>
+                    {% endif %}
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label for="usuario">Nome</label>
+                                    <input type="text" name="usuario" class="form-control" disabled='disabled'
+                                           value="{{ user.first_name }} {{ user.last_name }}"/>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label for="disciplina">Login</label>
+                                    <input type="text" name="login" class="form-control" disabled='disabled'
+                                           value="{{ user.username }}"/>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group" data-toggle="popover"
+                                     data-placement="top" data-trigger="hover"
+                                     data-content="Selecione o curso do qual você deseja realizar balanceamento de grades curriculares." title="Curso ao qual você está vinculado.">
+                                    <label class="control-label">Curso:</label>
+                                    <select class="form-control chosen-select"
+                                            name="curso_id" required="required" title="Curso ao qual você está vinculado.">
+                                        {% if cursos %}
+                                            {% for curso in cursos %}
+                                                <option value={{ curso.id }}>{{ curso.nome }}
+                                                    - {{ curso.instituicao.sigla }}</option>
+                                            {% endfor %}
+                                        {% else %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <button type="submit" class="btn btn-sm btn-primary  pull-left"><i
+                                        class="fa fa-check"></i>
+                                    Salvar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

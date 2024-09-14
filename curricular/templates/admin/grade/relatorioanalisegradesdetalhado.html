@@ -1,0 +1,238 @@
+{% extends 'admin/base/base.html' %}
+{% load static %}
+{% block pageTitle %} Análise de grade curricular {% endblock %}
+{% block content %}
+    {% block layout_style %}
+        <style> @page {
+            size: letter landscape;
+            margin: 2cm;
+        } </style>
+    {% endblock %}
+    <!-- Header -->
+    <div class="header-relatorio">
+
+        <div class="header-sys-logo-relatorio">
+            <img src="{% static 'images/ufvjmsemassinatura.png' %} " class="image-header-sys-logo-relatorio">
+        </div>
+
+        <div class="header-content-relatorio">
+            <div class="row wrapper page-heading">
+                <div class="col-lg-12">
+                    <h3 style="text-align:center">Universidade Federal dos Vales do Jequitinhonha e Mucuri</h3>
+                    <h3 style="text-align:center">Laboratório de Otimização e Inteligência Artificial</h3>
+                    <h3 style="text-align:center">{% block tituloRelatorio %} {{ tituloRelatorio }} {% endblock %}</h3>
+                </div>
+
+            </div>
+        </div>
+        <div class="header-company-logo-relatorio">
+            <img src="{% static 'images/curricularsemfundo2.png' %} " class="image-header-company-logo-relatorio">
+        </div>
+    </div>
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5>Instituição: {{ primeiraGrade.curriculo.curso.instituicao.nome }} - {{ primeiraGrade.curriculo.curso.instituicao.sigla }} <BR>
+                Curso: {{ primeiraGrade.curriculo.curso.nome }} - {{ primeiraGrade.curriculo.curso.codigo }}
+                <BR>
+                Currículo: {{ primeiraGrade.curriculo.nome }} <BR>
+                </h5>
+        </div>
+        <div class="ibox-content">
+            <div class="row">
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <tr>
+                        <th colspan="6" style="text-align: center;">
+                            {{ primeiraGrade.nome }}</th>
+                        <th colspan="6" style="text-align: center;">{{ segundaGrade.nome }}</th>
+                    </tr>
+                    <tr>
+                        <th>Per.</th>
+                        <th>Disc.</th>
+                        <th>Cód.</th>
+                        <th>Cr.</th>
+                        <th>Ret.</th>
+                        <th>Pré-req.</th>
+                        <th>Per.</th>
+                        <th>Disc.</th>
+                        <th>Cód.</th>
+                        <th>Cr.</th>
+                        <th>Ret.</th>
+                        <th>Pré-req.</th>
+                    </tr>
+
+                    {% for gradeDisciplinaPrimeira, gradeDisciplinaSegunda in gradeDisciplinasFinal %}
+                        <tr>
+                            <td style="text-align:center">{{ gradeDisciplinaPrimeira.periodoGradeAtual }}</td>
+                            <td>{{ gradeDisciplinaPrimeira.disciplina.nome }}</td>
+                            <td>{{ gradeDisciplinaPrimeira.disciplina.codigo }}</td>
+                            <td style="text-align:center">{{ gradeDisciplinaPrimeira.creditos }}</td>
+                            <td style="text-align:center">{{ gradeDisciplinaPrimeira.retencao }}%</td>
+                            <td>{% for prerequisito in gradeDisciplinaPrimeira.prerequisitos %}
+                                <label class="label label-success">{{ prerequisito.gradeDisciplinaRequisito.disciplina.codigo }}</label>
+                            {% endfor %}</td>
+                            <td style="text-align:center">{{ gradeDisciplinaSegunda.periodoGradeAtual }}</td>
+                            <td>{{ gradeDisciplinaSegunda.disciplina.nome }}</td>
+                            <td>{{ gradeDisciplinaSegunda.disciplina.codigo }}</td>
+                            <td style="text-align:center">{{ gradeDisciplinaSegunda.creditos }}</td>
+                            <td style="text-align:center">{{ gradeDisciplinaSegunda.retencao }}%</td>
+                            <td>{% for prerequisito in gradeDisciplinaSegunda.prerequisitos %}
+                                <label class="label label-success">{{ prerequisito.gradeDisciplinaRequisito.disciplina.codigo }}</label>
+                            {% endfor %}</td>
+                        </tr>
+                    {% endfor %}
+                    {#                    {% for gradeDisciplina in gradeDisciplinasSegunda %}#}
+                    {#                        <tr>#}
+                    {#                            <td style="text-align:center">{{ gradeDisciplina.periodo }}</td>#}
+                    {#                            <td>{{ gradeDisciplina.disciplina.nome }}</td>#}
+                    {#                            <td>{{ gradeDisciplina.disciplina.codigo }}</td>#}
+                    {#                            <td style="text-align:center">{{ gradeDisciplina.creditos }}</td>#}
+                    {#                            <td style="text-align:center">{{ gradeDisciplina.retencao }}%</td>#}
+                    {#                            <td>{% for prerequisito in gradeDisciplina.prerequisitos %}#}
+                    {#                                <label class="label label-success">{{ prerequisito.gradeDisciplinaRequisito.disciplina.codigo }}</label>#}
+                    {#                            {% endfor %}</td>#}
+                    {#                        </tr>#}
+                    {#                    {% endfor %}#}
+                </table>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped">
+
+                    <tr>
+                        <th colspan="6" style="text-align: center;">
+                            {{ primeiraGrade.nome }}</th>
+                        <th colspan="6" style="text-align: center;">{{ segundaGrade.nome }}</th>
+                    </tr>
+                    <tr>
+
+                        <th>Per.</th>
+                        <th>Soma Cr.</th>
+                        <th>Ac. Ret.</th>
+                        <th>Máx. Cr.</th>
+                        <th>Máx. Ret.</th>
+                        <th>Disp.</th>
+                        <th>Per.</th>
+                        <th>Soma Cr.</th>
+                        <th>Ac. Ret.</th>
+                        <th>Máx. Cr.</th>
+                        <th>Máx. Ret.</th>
+                        <th>Disp.</th>
+                        {#                        <th>Pesos</th>#}
+
+                    </tr>
+
+                    {% for dadosCondensadosPrimeira, dadosCondensadosSegunda in gradeDisciplinaCreditosRetencaoFinal %}
+                        <tr>
+                            <td>{{ dadosCondensadosPrimeira.periodoGradeAtual }}</td>
+                            <td>{{ dadosCondensadosPrimeira.totalCreditos }}</td>
+                            <td>{{ dadosCondensadosPrimeira.acumuladoRetencao }}</td>
+                            {% if forloop.first %}
+                                <td style="vertical-align: middle;"
+                                    rowspan="{{ dadosCondensadosPrimeira.gradeDisciplinaCreditosRetencao|length }}">{{ primeiraGrade.c }}</td>
+                            {% endif %}
+                            {% if forloop.first %}
+                                <td style="vertical-align: middle;"
+                                    rowspan="{{ dadosCondensadosPrimeira.gradeDisciplinaCreditosRetencao|length }}">{{ primeiraGrade.ir }}</td>
+                            {% endif %}
+                            {% if forloop.first %}
+                                <td style="vertical-align: middle;"
+                                    rowspan="{{ dadosCondensadosPrimeira.gradeDisciplinaCreditosRetencao|length }}">{{ primeiraGrade.rd }}</td>
+                            {% endif %}
+                            <td>{{ dadosCondensadosSegunda.periodoGradeAtual }}</td>
+                            <td>{{ dadosCondensadosSegunda.totalCreditos }}</td>
+                            <td>{{ dadosCondensadosSegunda.acumuladoRetencao }}</td>
+                            {% if forloop.first %}
+                                <td style="vertical-align: middle;"
+                                    rowspan="{{ dadosCondensadosSegunda.gradeDisciplinaCreditosRetencao|length }}">{{ segundaGrade.c }}</td>
+                            {% endif %}
+                            {% if forloop.first %}
+                                <td style="vertical-align: middle;"
+                                    rowspan="{{ dadosCondensadosSegunda.gradeDisciplinaCreditosRetencao|length }}">{{ segundaGrade.ir }}</td>
+                            {% endif %}
+                            {% if forloop.first %}
+                                <td style="vertical-align: middle;"
+                                    rowspan="{{ dadosCondensadosSegunda.gradeDisciplinaCreditosRetencao|length }}">{{ segundaGrade.rd }}</td>
+                            {% endif %}
+                            {#                            {% if forloop.first %}#}
+                            {#                                <td style="vertical-align: middle;" rowspan="{{ dadosCondensados.gradeDisciplinaCreditosRetencao|length }}">{{ 'pc: '}} {{primeiraGrade.pc}} <br> {{'pir:'}} {{primeiraGrade.pir}}#}
+                            {#                                    {{'prd: '}} {{primeiraGrade.prd }}</td>#}
+                            {#                            {% endif %}#}
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="12">Soma Cr.: créditos do período; Ac. Ret.: acumulado de retenção do período;
+                            Máx. Cr.: máxima quantidade de créditos dentre os períodos; Máx. Ret.: máximo acumulado de
+                            retenção dentre os períodos; Disp.: dispersão de disciplinas inter-relacionadas na
+                            grade.
+                        </td>
+                        <hr>
+                    </tr>
+                </table>
+
+            </div>
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+
+                    <ul>
+                        {% if primeiraGrade.c < segundaGrade.c %}
+                            <li> A grade <b>{{ primeiraGrade.nome }}</b> possui balanceamento de créditos <b>{{ melhoriaC }}%</b>
+                                melhor do
+                                que a grade <b>{{ segundaGrade.nome }}</b>.
+                            </li>
+                        {% elif primeiraGrade.c > segundaGrade.c %}
+                            <li>A grade <b>{{ segundaGrade.nome }}</b> possui balanceamento de créditos <b>{{ melhoriaC }}%</b>
+                                melhor do que
+                                a grade <b>{{ primeiraGrade.nome }}</b>.
+                            </li>
+                        {% else %}
+                            <li>As grades <b>{{ primeiraGrade.nome }}</b> e <b>{{ segundaGrade.nome }}</b> possuem iguais
+                                balanceamentos de
+                                créditos.
+                            </li>
+                        {% endif %}
+
+                        {% if primeiraGrade.ir < segundaGrade.ir %}
+                            <li> A grade <b>{{ primeiraGrade.nome }}</b> possui distribuição de disciplinas com elevados
+                                índices de retenção <b>{{ melhoriaIR }}%</b>
+                                melhor do
+                                que a grade <b>{{ segundaGrade.nome }}</b>.
+                            </li>
+                        {% elif primeiraGrade.ir > segundaGrade.ir %}
+                            <li>A grade <b>{{ segundaGrade.nome }}</b> possui distribuição de disciplinas com elevados índices
+                                de retenção <b>{{ melhoriaIR }}%</b>
+                                melhor do que
+                                a grade <b>{{ primeiraGrade.nome }}</b>.
+                            </li>
+                        {% else %}
+                            <li>As grades <b>{{ primeiraGrade.nome }}</b> e <b>{{ segunda.nome }}</b> possuem iguais
+                                distribuições de disciplinas com elevados índices de retenção.
+                            </li>
+                        {% endif %}
+
+                        {% if primeiraGrade.rd < segundaGrade.rd %}
+                            <li> A grade <b>{{ primeiraGrade.nome }}</b> possui aproximação de disciplinas
+                                inter-relacionadas <b>{{ melhoriaRD }}%</b>
+                                melhor do
+                                que a grade <b>{{ segundaGrade.nome }}</b>.
+                            </li>
+                        {% elif primeiraGrade.rd > segundaGrade.rd %}
+                            <li>A grade <b>{{ segundaGrade.nome }}</b> possui aproximação de disciplinas
+                                inter-relacionadas <b>{{ melhoriaRD }}%</b>
+                                melhor do que
+                                a grade <b>{{ primeiraGrade.nome }}</b>.
+                            </li>
+                        {% else %}
+                            <li>As grades {{ primeiraGrade.nome }} e {{ segundaGrade.nome }} possuem iguais
+                                aproximações de disciplinas inter-relacionadas.
+                            </li>
+                        {% endif %}
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

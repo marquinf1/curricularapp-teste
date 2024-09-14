@@ -1,0 +1,57 @@
+{% extends 'admin/base/base.html' %}
+{% block pageTitle %} Administração de disciplinas {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de disciplinas</h2>
+            <div class="pull-right">
+                <a class="btn btn-sm btn-primary pull-right" title="Voltar"
+                   href="{% url 'disciplina_index' %}"><i class="fa fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+{#            <nav aria-label="breadcrumb">#}
+{#                <ol class="breadcrumb">#}
+{#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+{#                </ol>#}
+{#            </nav>#}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5><strong>Detalhes da disciplina</strong></h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Instituição:</strong>
+                                {{ disciplina.curso.instituicao.nome }} - {{ disciplina.curso.instituicao.sigla }}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Curso:</strong>
+                                {{ disciplina.curso.nome }} - {{ disciplina.curso.codigo }}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Nome:</strong>
+                                {{ disciplina.nome }}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Código:</strong>
+                                {{ disciplina.codigo }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

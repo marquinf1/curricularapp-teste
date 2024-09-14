@@ -1,0 +1,109 @@
+{% extends 'admin/base/base.html' %}
+{% load static %}
+{% block pageTitle %} Análise de grade curricular {% endblock %}
+{% block content %}
+    {% block layout_style %}
+        <style> @page {
+            size: letter landscape;
+            margin: 2cm;
+        } </style>
+    {% endblock %}
+    <!-- Header -->
+    <div class="header-relatorio">
+
+        <div class="header-sys-logo-relatorio">
+            <img src="{% static 'images/ufvjmsemassinatura.png' %} " class="image-header-sys-logo-relatorio">
+        </div>
+
+        <div class="header-content-relatorio">
+            <div class="row wrapper page-heading">
+                <div class="col-lg-12">
+                    <h3 style="text-align:center">Universidade Federal dos Vales do Jequitinhonha e Mucuri</h3>
+                    <h3 style="text-align:center">Laboratório de Otimização e Inteligência Artificial</h3>
+                    <h3 style="text-align:center">{% block tituloRelatorio %} {{ tituloRelatorio }} {% endblock %}</h3>
+                </div>
+
+            </div>
+        </div>
+        <div class="header-company-logo-relatorio">
+            <img src="{% static 'images/curricularsemfundo2.png' %} " class="image-header-company-logo-relatorio">
+        </div>
+    </div>
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5>{% if grade.gradeOriginal %} Grade original: {{ grade.gradeOriginal.nome }} <BR> {% else %}
+            {% endif %}
+                Grade: {{ grade.nome }} <BR> Currículo: {{ grade.curriculo }}</h5>
+            {#            <h5>{% if grade.gradeOriginal %} Grade original: {{ grade.gradeOriginal.nome }} <BR> {% else %}#}
+            {#            {% endif %}#}
+            {#                Grade: {{ grade.nome }} <BR> Currículo: {{ grade.curriculo }}</h5>#}
+        </div>
+        <div class="ibox-content">
+            <div class="row">
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped">
+
+                    <tr>
+                        <th colspan="6" style="text-align: center;">{% if grade.gradeOriginal %}
+                            {{ grade.gradeOriginal.nome }}{% else %}
+                        {% endif %}</th>
+                        <th colspan="6" style="text-align: center;">{{ grade.nome }}</th>
+                    </tr>
+                    <tr>
+
+                        <th>Período</th>
+                        <th>Cr.</th>
+                        <th>Ret.</th>
+                        <th>C</th>
+                        <th>R</th>
+                        <th>RD</th>
+                        <th>Período</th>
+                        <th>Cr.</th>
+                        <th>Ret.</th>
+                        <th>C</th>
+                        <th>R</th>
+                        <th>RD</th>
+                        <th>Pesos</th>
+
+                    </tr>
+
+                    {% for dadosCondensadosOriginal, dadosCondensados in gradeDisciplinaCreditosRetencaoFinal %}
+                        <tr>
+                            <td>{{ dadosCondensadosOriginal.periodoGradeAtual }}</td>
+                            <td>{{ dadosCondensadosOriginal.totalCreditos}}</td>
+                            <td>{{ dadosCondensadosOriginal.acumuladoRetencao}}</td>
+                            {% if forloop.first %}
+                                <td style="vertical-align: middle;" rowspan="{{ dadosCondensados.gradeDisciplinaCreditosRetencao|length }}">{{ maxCreditosRetencaoOriginal.c__max }}</td>
+                            {% endif %}
+                            {% if forloop.first %}
+                                <td style="vertical-align: middle;" rowspan="{{ dadosCondensados.gradeDisciplinaCreditosRetencao|length }}">{{ maxCreditosRetencaoOriginal.r__max }}</td>
+                            {% endif %}
+                            {% if forloop.first %}
+                                <td style="vertical-align: middle;" rowspan="{{ dadosCondensados.gradeDisciplinaCreditosRetencao|length }}">{{ custoLayoutOriginal }}</td>
+                            {% endif %}
+                            <td>{{ dadosCondensadosOriginal.periodoGradeAtual }}</td>
+                            <td>{{ dadosCondensados.totalCreditos}}</td>
+                            <td>{{ dadosCondensados.acumuladoRetencao}}</td>
+                            {% if forloop.first %}
+                                <td style="vertical-align: middle;" rowspan="{{ dadosCondensados.gradeDisciplinaCreditosRetencao|length }}">{{ maxCreditosRetencao.c__max }}</td>
+                            {% endif %}
+                            {% if forloop.first %}
+                                <td style="vertical-align: middle;" rowspan="{{ dadosCondensados.gradeDisciplinaCreditosRetencao|length }}">{{ maxCreditosRetencao.r__max }}</td>
+                            {% endif %}
+                            {% if forloop.first %}
+                                <td style="vertical-align: middle;" rowspan="{{ dadosCondensados.gradeDisciplinaCreditosRetencao|length }}">{{ custoLayout }}</td>
+                            {% endif %}
+                            {% if forloop.first %}
+                                <td style="vertical-align: middle;" rowspan="{{ dadosCondensados.gradeDisciplinaCreditosRetencao|length }}">{{ 'pc: '}} {{grade.pc}} <br> {{'pir:'}} {{grade.pir}}
+                                    {{'prd: '}} {{grade.prd }}</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                    <tr><td colspan="12"><b>Cr.: créditos do período; Ret.: acumulado de retenção do período;
+                        C: máxima quantidade de créditos dentre os períodos; R: máximo acumulado de retenção dentre os períodos; Layout: custo do layout da grade</b></td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

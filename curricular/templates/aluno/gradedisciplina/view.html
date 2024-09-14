@@ -1,0 +1,146 @@
+{% extends 'aluno/base/base.html' %}
+{% block pageTitle %} Administração de disciplinas da grade {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de disciplinas da grade</h2>
+            <div class="pull-right">
+                <a class="btn btn-sm btn-primary pull-right" title="Voltar"
+                   href="{% url 'aluno_gradedisciplina_index' %}"><i class="fa fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+{#            <nav aria-label="breadcrumb">#}
+{#                <ol class="breadcrumb">#}
+{#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+{#                </ol>#}
+{#            </nav>#}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5><strong>Detalhes da disciplina da grade</strong></h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Instituicao:</strong>
+                                {{ gradeDisciplinaCursar.grade.curriculo.curso.instituicao.nome }} - {{ gradeDisciplinaCursar.grade.curriculo.curso.instituicao.sigla }}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Curso:</strong>
+                                {{ gradeDisciplinaCursar.grade.curriculo.curso.nome }} - {{ gradeDisciplinaCursar.grade.curriculo.curso.codigo }}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Grade do estudante:</strong>
+                                {{ gradeDisciplinaCursar.grade.nome }}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Grade do curso:</strong>
+                                {{ gradeDisciplinaCursar.grade.gradeOriginal.nome }}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Disciplina:</strong>
+                                {{ gradeDisciplinaCursar.gradeDisciplina.disciplina.nome }} - {{ gradeDisciplinaCursar.gradeDisciplina.disciplina.codigo }}
+                            </div>
+                        </div>
+
+{#                        <div class="col-xs-12 col-sm-12 col-md-12">#}
+{#                            <div class="form-group">#}
+{#                                <strong>Período:</strong>#}
+{#                                {{ gradeDisciplina.periodo }}#}
+{#                            </div>#}
+{#                        </div>#}
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Créditos:</strong>
+                                {{ gradeDisciplinaCursar.gradeDisciplina.creditos }}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Retenção:</strong>
+                                {{ gradeDisciplinaCursar.gradeDisciplina.retencao }}%
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Ciclo básico:</strong>
+                                {% if gradeDisciplinaCursar.gradeDisciplina.cicloBasico %} Sim {% else %} Não{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Período fixo:</strong>
+                                {% if gradeDisciplinaCursar.periodoFixo %} Sim {% else %} Não{% endif %}
+                            </div>
+                        </div>
+                        {% if gradeDisciplinaCursar.periodo != None%}
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Período fixado:</strong>
+                                {{ gradeDisciplinaCursar.periodo|add:gradeDisciplinaCursar.grade.periodoCronologico|add:-1 }}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if relacionamentosComoDisciplinaPosterior %}
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Disciplinas anteriores do relacionamento:</strong>
+                                {% for relacionamentoComoDisciplinaPosterior in relacionamentosComoDisciplinaPosterior %}
+                                    <label class="label label-success">{{ relacionamentoComoDisciplinaPosterior.gradeDisciplinaRelacionamentoAnterior.disciplina.nome }}
+                                        - {{ relacionamentoComoDisciplinaPosterior.gradeDisciplinaRelacionamentoAnterior.disciplina.codigo }}</label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if relacionamentosComoDisciplinaAnterior %}
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Disciplinas posteriores do relacionamento:</strong>
+                                {% for relacionamentoComoDisciplinaAnterior in relacionamentosComoDisciplinaAnterior %}
+                                    <label class="label label-success">{{ relacionamentoComoDisciplinaAnterior.gradeDisciplinaRelacionamentoPosterior.disciplina.nome }}
+                                        - {{ relacionamentoComoDisciplinaAnterior.gradeDisciplinaRelacionamentoPosterior.disciplina.codigo }}</label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if requisitos %}
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Pré-requistos:</strong>
+                                {% for prerequisito in requisitos %}
+                                    <label class="label label-success">{{ prerequisito.gradeDisciplinaRequisito.disciplina.nome }}
+                                        - {{ prerequisito.gradeDisciplinaRequisito.disciplina.codigo }}</label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if dependentesRequisito %}
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Disciplinas dependentes do pré-requisito:</strong>
+                                {% for dependenteRequisito in dependentesRequisito %}
+                                    <label class="label label-success">{{ dependenteRequisito.gradeDisciplina.disciplina.nome }}
+                                        - {{ dependenteRequisito.gradeDisciplina.disciplina.codigo }}</label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'comum/base/base.html' %}
+{% block pageTitle %} Administração de cursos do usuário {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de cursos do usuário</h2>
+            <div class="pull-right">
+                <a class="btn btn-sm btn-primary pull-right" title="Voltar"
+                   href="{% url 'comum_usercurso_index' %}"><i class="fa fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+{#            <nav aria-label="breadcrumb">#}
+{#                <ol class="breadcrumb">#}
+{#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+{#                </ol>#}
+{#            </nav>#}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox float-e-margins">
+                <form id="delete_form" method="POST" action="{% url 'comum_usercurso_delete' userCurso.id %}">
+                    {% csrf_token %}
+                    <div class="ibox-title">
+                        <h5><strong>Desvincular usuário do curso</strong></h5>
+                    </div>
+
+                    <div class="alert alert-warning" role="alert">
+                        <p>Você deseja desvincular o usuario
+                            <strong>{{ userCurso.user.first_name }} {{ userCurso.user.last_name }}
+                                </strong>
+                            do curso <strong>{{ userCurso.curso.nome }}
+                                - {{ userCurso.curso.codigo }}</strong>
+                            da instituição
+                            <strong>{{ userCurso.instituicao.nome }} - {{ userCurso.curso.instituicao.sigla }}?
+                                {% if alunoDelete is True %} Atenção! A desvinculação do estudante do curso fará com que todas as grades sejam apagadas, inclusive as balanceadas!
+                                {% endif %}</strong></p>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <button type="submit" class="btn btn-sm btn-primary  pull-left"><i
+                                        class="fa fa-check"></i>
+                                    Sim, desvincule-o!
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

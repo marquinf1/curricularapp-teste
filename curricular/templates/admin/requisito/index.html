@@ -1,0 +1,137 @@
+{% extends 'admin/base/base.html' %}
+{% block pageTitle %} Administração de pré-requisitos de disciplinas da grade {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de pré-requisitos de disciplinas da grade</h2>
+            {#            <div class="pull-right">#}
+            {#                <a class="btn btn-sm btn-primary pull-right" title="Adicionar"#}
+            {#                   href="{% url 'requisito_create' %}"><i class="fa fa-plus"></i> Adicionar#}
+            {#                </a>#}
+            {#            </div>#}
+            {#            <nav aria-label="breadcrumb">#}
+            {#                <ol class="breadcrumb">#}
+            {#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+            {#                </ol>#}
+            {#            </nav>#}
+        </div>
+    </div>
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5><strong>Pré-requisitos das disciplinas</strong></h5>
+        </div>
+
+        {% if 'successEdit' == message %}
+            <div class="alert alert-success" role="alert">
+                <button class="close" data-dismiss="alert">
+                    <small><sup>x</sup></small>
+                </button>
+                Pré-requisitos alterados com sucesso!
+            </div>
+        {% endif %}
+
+        {% if 'successDelete' == message %}
+            <div class="alert alert-success" role="alert">
+                <button class="close" data-dismiss="alert">
+                    <small><sup>x</sup></small>
+                </button>
+                Pré-requisitos apagados com sucesso!
+            </div>
+        {% endif %}
+        <div class="ibox-content">
+            <div class="row">
+                <form id="create_form" method="POST" action="{% url 'requisito_index' %}">
+                    {% csrf_token %}
+                    <div class="col-sm-9 m-b-xs">
+                        <div data-toggle="buttons" class="btn-group">
+                            {#                        {!! Form::select('processo_id', $processos, $processo_id, ['class' => 'form-control','placeholder' => 'Escolha o processo', 'onchange' => 'this.form.submit()']) !!}#}
+                            <label class="control-label">Grade:</label>
+                            <select class="form-control chosen-select" name="grade_id" onchange="this.form.submit()">
+                                <option value="">Escolha a grade</option>
+                                {% if grades %}
+                                    {% for grade in grades %}
+                                        <option value="{{ grade.id }}"{% if grade.id == gradeSelection.id %}
+                                                selected{% endif %}> {{ grade.nome }} - {{ grade.curriculo.nome }}
+                                            - {{ grade.curriculo.curso.nome }}
+                                            - {{ grade.curriculo.curso.instituicao.sigla }} </option>
+                                    {% endfor %}
+                                {% else %}
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="ibox-content">
+                <div class="table-responsive">
+                    <table id="requisitos" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th title="Disciplinas dependentes de pré-requisito">Disciplina</th>
+                            <th title="Pré-requisitos de disciplinas dependentes">Pré-requisitos</th>
+                            <th width="12%">Ação</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for gradeDisciplina in gradesDisciplinas %}
+                            {% if gradeDisciplina.prerequisitos %}
+                            <tr>
+
+                                    <td>{{ gradeDisciplina.disciplina.nome }}
+                                        - {{ gradeDisciplina.disciplina.codigo }}</td>
+                                    <td>
+                                        {% for prerequisito in gradeDisciplina.prerequisitos %}
+                                            <label class="label label-success">{{ prerequisito.gradeDisciplinaRequisito.disciplina.codigo }}</label>
+                                        {% endfor %}
+                                    </td>
+
+                                    <td>
+                                        <a class="btn btn-info btn-sm"
+                                           href="{% url 'requisito_view' gradeDisciplina.id %}"
+                                           data-toggle="tooltip" title="Detalhar" data-placement="top"><i class="fa fa-file-text-o"></i></a>
+                                        <a class="btn btn-primary btn-sm"
+                                           href="{% url 'requisito_edit' gradeDisciplina.id %}"
+                                           data-toggle="tooltip" title="Editar" data-placement="top"><i class="fa fa-pencil"></i></a>
+                                        <a class="btn btn-danger btn-sm"
+                                           href="{% url 'requisito_delete' gradeDisciplina.id %}" data-reload="true"
+                                           title="Excluir"
+                                           data-toggle="tooltip" data-placement="top"><i class="fa fa-trash"></i></a>
+                                    </td>
+
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if gradesDisciplinas.has_other_pages %}
+                        <ul class="pagination">
+                            {% if gradesDisciplinas.has_previous %}
+                                <li>
+                                    <a href="?page={{ gradesDisciplinas.previous_page_number }}&grade_id={{ gradeSelection.id }}">&laquo;</a>
+                                </li>
+                            {% else %}
+                                <li class="disabled"><span>&laquo;</span></li>
+                            {% endif %}
+                            {% for i in gradesDisciplinas.paginator.page_range %}
+                                {% if gradesDisciplinas.number == i %}
+                                    <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                                {% else %}
+                                    <li><a href="?page={{ i }}&grade_id={{ gradeSelection.id }}">{{ i }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                            {% if gradesDisciplinas.has_next %}
+                                <li>
+                                    <a href="?page={{ gradesDisciplinas.next_page_number }}&grade_id={{ gradeSelection.id }}">&raquo;</a>
+                                </li>
+                            {% else %}
+                                <li class="disabled"><span>&raquo;</span></li>
+                            {% endif %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

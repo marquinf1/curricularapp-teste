@@ -1,0 +1,172 @@
+{% extends 'aluno/base/base.html' %}
+{% block pageTitle %} Administração de grades {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de grades do estudante</h2>
+            {#            <div class="pull-right">#}
+            {#                <a class="btn btn-sm btn-primary pull-right" title="Adicionar"#}
+            {#                   href="{% url 'aluno_grade_create' %}"><i class="fa fa-plus"></i> Adicionar#}
+            {#                </a>#}
+            {#            </div>#}
+            {#            <nav aria-label="breadcrumb">#}
+            {#                <ol class="breadcrumb">#}
+            {#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+            {#                </ol>#}
+            {#            </nav>#}
+        </div>
+    </div>
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5><strong>Grades curriculares do estudante</strong></h5>
+        </div>
+        {% if 'success' == message %}
+            <div class="alert alert-success" role="alert">
+                <button class="close" data-dismiss="alert">
+                    <small><sup>x</sup></small>
+                </button>
+                Grade curricular do estudante salva com sucesso!
+            </div>
+        {% endif %}
+        {% if 'successDelete' == message %}
+            <div class="alert alert-success" role="alert">
+                <button class="close" data-dismiss="alert">
+                    <small><sup>x</sup></small>
+                </button>
+                Grade curricular apagada com sucesso!
+            </div>
+        {% endif %}
+
+        {% if 'gradeBalanceadaAssociada' == message %}
+            <div class="alert alert-danger" role="alert">
+                <button class="close" data-dismiss="alert">
+                    <small><sup>x</sup></small>
+                </button>
+                Operação não realizada! Primeiramente é necessário excluir as grades balanceadas associadas!
+            </div>
+        {% endif %}
+
+        {% if 'successBalance' == message %}
+            <div class="alert alert-success" role="alert">
+                <button class="close" data-dismiss="alert">
+                    <small><sup>x</sup></small>
+                </button>
+                Grade curricular balanceada com sucesso!
+            </div>
+        {% endif %}
+
+        <div class="ibox-content">
+            <div class="row">
+                <form id="create_form" method="POST" action="{% url 'aluno_grade_gradealuno' %}">
+                    {% csrf_token %}
+                    <div class="col-sm-3">
+                        <div data-toggle="buttons" class="btn-group">
+                            <label class="control-label">Grade do estudante:</label>
+                            <select class="form-control chosen-select" name="grade_id" onchange="this.form.submit()">
+                                <option value="">Todas as grades</option>
+                                {% if gradesOriginais %}
+                                    {% for gradeOriginal in gradesOriginais %}
+                                        <option value="{{ gradeOriginal.id }}"
+                                                {% if gradeOriginal.id == gradeOriginalSelection.id %}
+                                                selected{% endif %}> {{ gradeOriginal.nome }} - {{ gradeOriginal.gradeOriginal.nome }}
+                                            - {{ gradeOriginal.curriculo.nome }}
+                                        </option>
+                                    {% endfor %}
+                                {% else %}
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+{#                    <div class="col-sm-2">#}
+{#                        <label class="control-label">Soluções:</label>#}
+{#                        <select class="form-control chosen-select" name="situacaoGrades" onchange="this.form.submit()">#}
+{#                            <option value="">Selecione</option>#}
+{#                            <option value="1" {% if situacaoGrades == "1" %}#}
+{#                                    selected{% endif %}> Sim#}
+{#                            </option>#}
+{#                            <option value="2" {% if situacaoGrades == "2" %}#}
+{#                                    selected{% endif %}> Não#}
+{#                            </option>#}
+{#                        </select>#}
+{#                    </div>#}
+                </form>
+            </div>
+            <div class="ibox-content">
+                <form id="create_form_analise" method="POST" action="{% url 'grade_relatorio_analise_grades' %}">
+                    {% csrf_token %}
+                    <div class="table-responsive">
+                        <table id="gradesaluno" class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th title="Nome da grade do estudante.">Nome</th>
+                                <th title="Grade do cursos de onde foram extraídas as disciplinas para comporem as grades balanceadas.">
+                                    Grade do curso
+                                </th>
+                                <th title="Curso do estudante.">Curso</th>
+                                <th width="12%">Ação</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for grade in grades %}
+                                <tr>
+                                    <td>{{ grade.nome }}</td>
+                                    <td>{% if not grade.solucao %}{{ grade.gradeOriginal.nome }}{% else %}
+                                        {{ grade.gradeOriginal.gradeOriginal.nome }}{% endif %}</td>
+                                    <td>{{ grade.curriculo.curso.nome }}
+                                        - {{ grade.curriculo.curso.instituicao.sigla }}</td>
+
+                                    <td>
+                                        <a class="btn btn-lilac btn-sm" href="{% url 'aluno_grade_view' grade.id %}"
+                                           data-toggle="tooltip" data-placement="top" title="Ir para o balanceamento"><i class="fa fa-arrow-up"></i></a>
+                                        <a class="btn btn-primary btn-sm"
+                                                {% if grade.gradeAluno and not grade.solucao %} {% else %}
+                                           disabled="disabled" {% endif %} href="{% url 'aluno_grade_edit' grade.id %}"
+                                           data-toggle="tooltip" data-placement="top" title="Editar"><i
+                                                class="fa fa-pencil"></i></a>
+                                        <a class="btn btn-danger btn-sm" {% if not grade.gradeAluno %}
+                                           disabled="disabled" {% else %} {% endif %}
+                                           href="{% url 'aluno_grade_delete' grade.id %}" data-reload="true"
+                                           title="Excluir"
+                                           data-toggle="tooltip" data-placement="top"><i class="fa fa-trash"></i></a>
+                                        {#                                <a class="btn btn-success btn-sm" {% if grade.gradeAluno %} disabled="disabled" {% else %} {% endif %}#}
+                                        {#                                   href="{% url 'aluno_grade_create' grade.id %}"  data-reload="true" title="Criar grade"#}
+                                        {#                                   data-toggle="tooltip" data-placement="top"><i class="fa fa-book"></i></a>#}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        {% if grades.has_other_pages %}
+                            <ul class="pagination">
+                                {% if grades.has_previous %}
+                                    <li>
+                                        <a href="?page={{ grades.previous_page_number }}&grade_id={{ gradeOriginalSelection.id }}">&laquo;</a>
+                                    </li>
+                                {% else %}
+                                    <li class="disabled"><span>&laquo;</span></li>
+                                {% endif %}
+                                {% for i in grades.paginator.page_range %}
+                                    {% if grades.number == i %}
+                                        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span>
+                                        </li>
+                                    {% else %}
+                                        <li><a href="?page={{ i }}&grade_id={{ gradeOriginalSelection.id }}">{{ i }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                {% if grades.has_next %}
+                                    <li>
+                                        <a href="?page={{ grades.next_page_number }}&grade_id={{ gradeOriginalSelection.id }}">&raquo;</a>
+                                    </li>
+                                {% else %}
+                                    <li class="disabled"><span>&raquo;</span></li>
+                                {% endif %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

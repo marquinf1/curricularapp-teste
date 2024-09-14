@@ -1,0 +1,80 @@
+{% extends 'admin/base/base.html' %}
+{% block pageTitle %} Administração de disciplinas {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de disciplinas</h2>
+            <div class="pull-right">
+                <a class="btn btn-sm btn-primary pull-right" title="Voltar"
+                   href="{% url 'disciplina_index' %}"><i class="fa fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+            {#            <nav aria-label="breadcrumb">#}
+            {#                <ol class="breadcrumb">#}
+            {#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+            {#                </ol>#}
+            {#            </nav>#}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox float-e-margins">
+                <form id="create_form" method="POST" action="{% url 'disciplina_create' %}">
+                    {% csrf_token %}
+                    <div class="ibox-title">
+                        <h5><strong>Detalhes da disciplina</strong></h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group" title="Curso da disciplina" data-toggle="popover"
+                                     data-placement="top" data-trigger="hover"
+                                     data-content="Selecione o curso da disciplina.">
+                                    <label class="control-label">Curso:</label>
+                                    <select class="form-control chosen-select" name="curso_id">
+                                        {% if cursos %}
+                                            {% for curso in cursos %}
+                                                <option value={{ curso.id }}>{{ curso.nome }}
+                                                    - {{ curso.instituicao.sigla }}</option>
+                                            {% endfor %}
+                                        {% else %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label for="nome">Nome:</label>
+                                    <input type="text" name="nome" class="form-control" required maxlength="255"
+                                           data-toggle="popover"
+                                           title="Nome da disciplina"
+                                           data-placement="top" data-trigger="hover"
+                                           data-content="Informe o nome da disciplina."/>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label for="codigo">Código:</label>
+                                    <input type="text" name="codigo" class="form-control" required maxlength="15"
+                                           data-toggle="popover"
+                                           title="Código da disciplina"
+                                           data-placement="top" data-trigger="hover"
+                                           data-content="Informe um código indentificador para a disciplina."/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <button type="submit" class="btn btn-sm btn-primary  pull-left"><i
+                                        class="fa fa-check"></i>
+                                    Salvar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

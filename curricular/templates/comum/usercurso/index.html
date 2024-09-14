@@ -1,0 +1,89 @@
+{% extends 'comum/base/base.html' %}
+{% block pageTitle %} Administração de cursos do usuário {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de cursos do usuário</h2>
+            <div class="pull-right">
+                <a class="btn btn-sm btn-primary pull-right" title="Adicionar"
+                   href="{% url 'comum_usercurso_create' %}"><i class="fa fa-plus"></i> Adicionar
+                </a>
+            </div>
+            {#            <nav aria-label="breadcrumb">#}
+            {#                <ol class="breadcrumb">#}
+            {#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+            {#                </ol>#}
+            {#            </nav>#}
+        </div>
+    </div>
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5><strong>Cursos do usuário</strong></h5>
+        </div>
+        {% if 'successDelete' == message %}
+            <div class="alert alert-success" role="alert">
+                <button class="close" data-dismiss="alert">
+                    <small><sup>x</sup></small>
+                </button>
+                Usuário desvinculado do curso com sucesso!
+            </div>
+        {% endif %}
+        <div class="ibox-content">
+            <div class="table-responsive">
+                <table id="cursosusuario" class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th title="Cursos aos quais o usuário está vinculado">Curso</th>
+                        <th title="Instituições dos cursos aos quais o usuário está vinculado">Instituição</th>
+                        <th width="12%">Ação</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for userCurso in userCursos %}
+                        <tr>
+                            <td>{{ userCurso.curso.nome }}
+                                - {{ userCurso.curso.codigo }}</td>
+                            <td>{{ userCurso.curso.instituicao.nome }}
+                                - {{ userCurso.curso.instituicao.sigla }}</td>
+                            <td>
+                                <a class="btn btn-info btn-sm"
+                                   href="{% url 'comum_usercurso_view' userCurso.curso.id %}"
+                                   data-toggle="tooltip" data-placement="top" title="Detalhar"><i class="fa fa-file-text-o"></i></a>
+                                {#                                <a class="btn btn-primary btn-sm"#}
+                                {#                                   href="{% url 'relacionamento_edit' relacionamento.id %}"#}
+                                {#                                   data-toggle="tooltip" data-placement="top"><i class="fa fa-pencil"></i></a>#}
+                                <a class="btn btn-danger btn-sm"
+                                   href="{% url 'comum_usercurso_delete' userCurso.id %}" data-reload="true"
+                                   title="Excluir"
+                                   data-toggle="tooltip" data-placement="top" title="Excluir"><i class="fa fa-trash"></i></a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% if userCursos.has_other_pages %}
+                    <ul class="pagination">
+                        {% if relacionamentos.has_previous %}
+                            <li><a href="?page={{ userCursos.previous_page_number }}">&laquo;</a></li>
+                        {% else %}
+                            <li class="disabled"><span>&laquo;</span></li>
+                        {% endif %}
+                        {% for i in userCursos.paginator.page_range %}
+                            {% if userCursos.number == i %}
+                                <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                            {% else %}
+                                <li><a href="?page={{ i }}">{{ i }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if userCursos.has_next %}
+                            <li><a href="?page={{ userCursos.next_page_number }}">&raquo;</a></li>
+                        {% else %}
+                            <li class="disabled"><span>&raquo;</span></li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

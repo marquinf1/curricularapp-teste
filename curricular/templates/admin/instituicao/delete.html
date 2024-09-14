@@ -1,0 +1,45 @@
+{% extends 'admin/base/base.html' %}
+{% block pageTitle %} Administração de disciplinas da grade {% endblock %}
+{% block content %}
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de instituições</h2>
+            <div class="pull-right">
+                <a class="btn btn-sm btn-primary pull-right" title="Voltar"
+                   href="{% url 'instituicao_index' %}"><i class="fa fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+{#            <nav aria-label="breadcrumb">#}
+{#                <ol class="breadcrumb">#}
+{#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+{#                </ol>#}
+{#            </nav>#}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox float-e-margins">
+                <form id="delete_form" method="POST" action="{% url 'instituicao_delete' instituicao.id %}">
+                    {% csrf_token %}
+                    <div class="ibox-title">
+                        <h5><strong>Excluir instituição</strong></h5>
+                    </div>
+
+                    <div class="alert alert-warning" role="alert">
+                        <p>Você deseja excluir a instituição <strong>{{ instituicao.nome }} - {{ instituicao.sigla }}</strong>? Esta operação não
+                            poderá ser revertida!</p>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <button type="submit" class="btn btn-sm btn-primary  pull-left"><i
+                                        class="fa fa-check"></i>
+                                    Sim, exclua-a!
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'aluno/base/base.html' %}
+{% block pageTitle %} Administração de grades {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de grades</h2>
+            <div class="pull-right">
+                <a class="btn btn-sm btn-primary pull-right" title="Voltar"
+                   href="{% url 'aluno_grade_gradealuno' %}"><i class="fa fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+{#            <nav aria-label="breadcrumb">#}
+{#                <ol class="breadcrumb">#}
+{#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+{#                </ol>#}
+{#            </nav>#}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox float-e-margins">
+                <form id="edit_form" method="POST" action="{% url 'aluno_grade_edit' grade.id %}">
+                    {% csrf_token %}
+                    <div class="ibox-title">
+                        <h5><strong>Detalhes da grade curricular</strong></h5>
+                    </div>
+                    {% if 'gradeJaCadastrada' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! Já existe uma grade de aluno cadastrada com este nome!
+                        </div>
+                    {% endif %}
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group" data-placement="top" data-trigger="hover" data-toggle="popover"
+                                    data-content="Grade do curso onde constam as disciplinas a serem selecionadas.">
+                                    <input type="hidden" id="gradeOriginal_id" name="gradeOriginal_id"
+                                           value="{{ grade.gradeOriginal.id }}" required>
+                                    <label for="grade">Grade:</label>
+                                    <input type="text" name="grade" class="form-control" disabled='disabled'  title="Grade do curso"
+                                           value="{{ grade.gradeOriginal.nome }} - {{ grade.gradeOriginal.curriculo.nome }} - {{ grade.gradeOriginal.curriculo.curso.nome }} - {{ grade.gradeOriginal.curriculo.curso.instituicao.sigla }}"
+                                           required/>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label for="nome">Nome</label>
+                                    <input type="text" name="nome" class="form-control" value="{{ grade.nome }}" required
+                                    data-toggle="popover"
+                                           title="Nome da grade do estudante"
+                                           data-placement="top" data-trigger="hover"
+                                           data-content="Informe o nome da grade do estudante que será criada."/>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label for="nome">Número de períodos que já se passaram desde seu ingresso no
+                                        curso:</label>
+                                    <input type="number" name="periodoCronologico" class="form-control" value="{{ grade.periodoCronologico|add:-1 }}" required
+                                    data-toggle="popover"
+                                           title="Número de períodos que já se passaram desde o seu ingresso"
+                                           data-placement="top" data-trigger="hover"
+                                           data-content="Informe a quantidade de períodos que já se passaram desde o seu ingresso, independente se
+                                            houve alguma reprovação em disciplinas ou não."/>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label for="nome">Quantidade de períodos disponíveis para a conclusão
+                                        do curso:</label>
+                                    <input type="number" name="periodosRestantes" class="form-control" value="{{ grade.periodosRestantes }}" required
+                                    min="1"
+                                           data-toggle="popover"
+                                           title="Número de períodos disponíveis para a conclusão do curso"
+                                           data-placement="top" data-trigger="hover"
+                                           data-content="Informe a quantidade de períodos disponíveis para que você conclua o curso. Por exemplo,
+                                                        em um currículo com 9 períodos, caso já tenham se passado 2 períodos desde o seu ingresso,
+                                                        você tem 7 períodos disponíveis, independente se
+                                            houve alguma reprovação em disciplinas ou não."/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <button type="submit" class="btn btn-sm btn-primary  pull-left"><i
+                                        class="fa fa-check"></i>
+                                    Salvar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}

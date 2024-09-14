@@ -1,0 +1,208 @@
+{% extends 'aluno/base/base.html' %}
+{% block pageTitle %} Administração de grades {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de grades balanceadas</h2>
+            {#            <div class="pull-right">#}
+            {#                <a class="btn btn-sm btn-primary pull-right" title="Adicionar"#}
+            {#                   href="{% url 'aluno_grade_create' %}"><i class="fa fa-plus"></i> Adicionar#}
+            {#                </a>#}
+            {#            </div>#}
+            {#            <nav aria-label="breadcrumb">#}
+            {#                <ol class="breadcrumb">#}
+            {#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+            {#                </ol>#}
+            {#            </nav>#}
+        </div>
+    </div>
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5><strong>Grades balanceadas</strong></h5>
+        </div>
+        {% if 'successDelete' == message %}
+            <div class="alert alert-success" role="alert">
+                <button class="close" data-dismiss="alert">
+                    <small><sup>x</sup></small>
+                </button>
+                Grade balanceada apagada com sucesso!
+            </div>
+        {% endif %}
+        {% if 'successBalance' == message %}
+            <div class="alert alert-success" role="alert">
+                <button class="close" data-dismiss="alert">
+                    <small><sup>x</sup></small>
+                </button>
+                Grade curricular balanceada com sucesso!
+            </div>
+        {% endif %}
+
+        {% if 'balanceando' == message %}
+            <div class="alert alert-warning" role="alert">
+                <button class="close" data-dismiss="alert">
+                    <small><sup>x</sup></small>
+                </button>
+                Há grade(s) em processo(s) de balanceamento. Clique
+                {% if gradeOriginalSelection %}
+                <a title="Lista de grades balanceadas"
+                                   href="{% url 'aluno_gradesbalanceadas_index'  gradeOriginalSelection.id %}">
+                                    aqui</a> e verifique os resultados que já foram gerados.
+                {% else %}
+                    <a title="Lista de grades balanceadas"
+                                   href="{% url 'aluno_gradesbalanceadas_index' %}">
+                                    aqui</a> e verifique os resultados que já foram gerados.
+                {% endif %}
+            </div>
+        {% endif %}
+        {% if 'balanceandoConcluido' == message %}
+                        <div class="alert alert-warning" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Não há processos de balanceamento em execução.
+                        </div>
+        {% endif %}
+
+        {% if 'problemaUltimoBalanceamento' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            A configuração do currículo do curso e/ou dados informados na sua grade impediram o balanceamento na tentativa mais recente.
+                        </div>
+        {% endif %}
+        {% if 'numeroGradesComparacaoIncorreto' == message %}
+            <div class="alert alert-danger" role="alert">
+                <button class="close" data-dismiss="alert">
+                    <small><sup>x</sup></small>
+                </button>
+                Operação não realizada! Para realizar uma comparação, selecione duas grades.
+            </div>
+        {% endif %}
+
+        <div class="ibox-content">
+            <div class="row">
+                <form id="create_form" method="POST" action="{% url 'aluno_gradesbalanceadas_index' %}">
+                    {% csrf_token %}
+                    <div class="col-sm-3">
+                        <div data-toggle="buttons" class="btn-group">
+                            <label class="control-label">Grade do estudante:</label>
+                            <select class="form-control chosen-select" name="grade_id" onchange="this.form.submit()">
+                                <option value="">Todas as grades</option>
+                                {% if gradesOriginais %}
+                                    {% for gradeOriginal in gradesOriginais %}
+                                        <option value="{{ gradeOriginal.id }}"
+                                                {% if gradeOriginal.id == gradeOriginalSelection.id %}
+                                                selected{% endif %}> {{ gradeOriginal.nome }}
+                                            - {{ gradeOriginal.gradeOriginal.nome }}
+                                            - {{ gradeOriginal.curriculo.nome }}
+                                        </option>
+                                    {% endfor %}
+                                {% else %}
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                    {#                     <div class="col-sm-2">#}
+                    {#                            <label class="control-label">Acompanhar balanceamento:</label>#}
+                    {#                           <input type="checkbox" onclick="toggleAutoRefresh(this);" id="reloadCB">#}
+                    {#                        </div>#}
+                </form>
+            </div>
+            <div class="ibox-content">
+                <form id="create_form_analise" method="POST" action="{% url 'grade_relatorio_analise_grades' %}">
+                    {% csrf_token %}
+                    <div class="table-responsive">
+                        <table id="gradesbalanceadas" class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th title="Nomes das grades">Nome</th>
+                                <th title="Quanto menor o número de créditos, mais uniforme é a distribuição (melhor é o balanceamento) de créditos entre os períodos.">
+                                    Máx. Créditos
+                                </th>
+                                <th title="Quanto menor o acumulado de retenção, menor é a localização de disciplinas com elevados índices de retenção em um mesmo período.">
+                                    Máx. Acumulado Retenção(%)
+                                </th>
+                                <th title="Quanto menor este número, maior é a coesão (menor é a distância) entre as disciplinas inter-relacionadas.">
+                                    Dispersão
+                                </th>
+                                <th title="Currículos aos quais as grades estão vinculadas">Currículo</th>
+                                <th title="Cursos aos quais os currículos e grades estão vinculados">Curso</th>
+                                <th width="15%">Ação</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for grade in grades %}
+                                <tr>
+                                    <td><input type="checkbox" name="checks[]" value="{{ grade.id }}"/></td>
+                                    <td>{{ grade.nome }}</td>
+                                    <td>{{ grade.c }}</td>
+                                    <td>{{ grade.ir }}</td>
+                                    <td>{{ grade.rd }}</td>
+                                    <td>{{ grade.curriculo.nome }}</td>
+                                    <td>{{ grade.curriculo.curso.nome }}
+                                        - {{ grade.curriculo.curso.instituicao.sigla }}</td>
+                                    <td>
+                                        <a class="btn btn-info btn-sm" href="{% url 'aluno_grade_view' grade.id %}"
+                                           data-toggle="tooltip" data-placement="top" title="Detalhar"><i
+                                                class="fa fa-file-text-o"></i></a>
+                                        {#                                <a class="btn btn-primary btn-sm" {% if grade.gradeAluno and not grade.solucao %} {% else %} disabled="disabled" {% endif %} href="{% url 'aluno_grade_edit' grade.id %}"#}
+                                        {#                                   data-toggle="tooltip" data-placement="top"><i class="fa fa-pencil"></i></a>#}
+                                        {#                                <a class="btn btn-danger btn-sm" {% if not grade.gradeAluno %} disabled="disabled" {% else %} {% endif %}#}
+                                        {#                                   href="{% url 'aluno_grade_delete' grade.id %}" data-reload="true" title="Excluir"#}
+                                        {#                                   data-toggle="tooltip" data-placement="top"><i class="fa fa-trash"></i></a>#}
+
+                                        <a class="btn btn-danger btn-sm"
+                                           href="{% url 'aluno_grade_delete' grade.id %}" data-reload="true"
+                                           title="Excluir"
+                                           data-toggle="tooltip" data-placement="top"><i class="fa fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        {% if grades.has_other_pages %}
+                            <ul class="pagination">
+                                {% if grades.has_previous %}
+                                    <li>
+                                        <a href="?page={{ grades.previous_page_number }}&grade_id={{ gradeOriginalSelection.id }}">&laquo;</a>
+                                    </li>
+                                {% else %}
+                                    <li class="disabled"><span>&laquo;</span></li>
+                                {% endif %}
+                                {% for i in grades.paginator.page_range %}
+                                    {% if grades.number == i %}
+                                        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span>
+                                        </li>
+                                    {% else %}
+                                        <li><a href="?page={{ i }}&grade_id={{ gradeOriginalSelection.id }}">{{ i }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                {% if grades.has_next %}
+                                    <li>
+                                        <a href="?page={{ grades.next_page_number }}&grade_id={{ gradeOriginalSelection.id }}">&raquo;</a>
+                                    </li>
+                                {% else %}
+                                    <li class="disabled"><span>&raquo;</span></li>
+                                {% endif %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                    <div class="row">
+                        {% if grades %}
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <button type="submit" class="btn btn-sm btn-primary  pull-left"><i
+                                        class="fa fa-check"></i>
+                                    Comparar
+                                </button>
+                            </div>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,275 @@
+{% extends 'admin/base/base.html' %}
+{% block pageTitle %} Administração de grades {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de grades</h2>
+            <div class="pull-right">
+                <a class="btn btn-sm btn-primary pull-right" title="Adicionar"
+                   href="{% url 'grade_create' %}"><i class="fa fa-plus"></i> Adicionar
+                </a>
+            </div>
+            {#            <nav aria-label="breadcrumb">#}
+            {#                <ol class="breadcrumb">#}
+            {#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+            {#                </ol>#}
+            {#            </nav>#}
+        </div>
+    </div>
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5><strong>Grades curriculares cadastradas</strong></h5>
+        </div>
+
+        {% if 'success' == message %}
+            <div class="alert alert-success" role="alert">
+                <button class="close" data-dismiss="alert">
+                    <small><sup>x</sup></small>
+                </button>
+                Grade curricular salva com sucesso!
+            </div>
+        {% endif %}
+
+        {% if 'successDelete' == message %}
+            <div class="alert alert-success" role="alert">
+                <button class="close" data-dismiss="alert">
+                    <small><sup>x</sup></small>
+                </button>
+                Grade curricular apagada com sucesso!
+            </div>
+        {% endif %}
+        {% if 'numeroGradesComparacaoIncorreto' == message %}
+            <div class="alert alert-danger" role="alert">
+                <button class="close" data-dismiss="alert">
+                    <small><sup>x</sup></small>
+                </button>
+                Operação não realizada! Para realizar uma comparação, selecione duas grades.
+            </div>
+        {% endif %}
+
+        {% if 'gradeBalanceadaAssociada' == message %}
+            <div class="alert alert-danger" role="alert">
+                <button class="close" data-dismiss="alert">
+                    <small><sup>x</sup></small>
+                </button>
+                Operação não realizada! Existem grade(s) balanceada(s) associada(s) à grade do curso.
+                Primeiramente, é necessário apagar as soluções geradas a partir dela.
+            </div>
+        {% endif %}
+
+        {% if 'gradeBalanceadaGradeCursoIncorreta' == message %}
+            <div class="alert alert-danger" role="alert">
+                <button class="close" data-dismiss="alert">
+                    <small><sup>x</sup></small>
+                </button>
+                Operação não realizada! Você não pode comparar uma grade com outra que não seja solução resultante do
+                seu balanceamento.
+            </div>
+        {% endif %}
+
+        {% if 'gradeAlunoAssociada' == message %}
+            <div class="alert alert-danger" role="alert">
+                <button class="close" data-dismiss="alert">
+                    <small><sup>x</sup></small>
+                </button>
+                Operação não realizada! Existe(m) grade(s) de aluno(s) criada(s) a partir desta grade.
+            </div>
+        {% endif %}
+
+        {% if 'balanceando' == message %}
+            <div class="alert alert-warning" role="alert">
+                <button class="close" data-dismiss="alert">
+                    <small><sup>x</sup></small>
+                </button>
+
+                Há grade(s) em processo(s) de balanceamento. Clique
+                <a title="Lista de grades"
+                   href="{% url 'grade_index' %}">
+                    aqui</a> e verifique os resultados que já foram gerados.
+
+            </div>
+        {% endif %}
+
+        {% if 'balanceandoConcluido' == message %}
+            <div class="alert alert-warning" role="alert">
+                <button class="close" data-dismiss="alert">
+                    <small><sup>x</sup></small>
+                </button>
+                Não há processos de balanceamento em execução.
+            </div>
+        {% endif %}
+
+        <div class="ibox-content">
+            <div class="row">
+                <form id="create_form" method="POST" action="{% url 'grade_index' %}">
+                    {% csrf_token %}
+                    <div class="col-sm-3">
+                        <div data-toggle="buttons" class="btn-group">
+                            <label class="control-label">Currículo:</label>
+                            <select class="form-control chosen-select" name="curriculo_id"
+                                    onchange="this.form.submit()">
+                                <option value="">Todos os currículos</option>
+                                {% if curriculos %}
+                                    {% for curriculo in curriculos %}
+                                        <option value="{{ curriculo.id }}"{% if curriculo.id == curriculoSelection.id %}
+                                                selected{% endif %}> {{ curriculo.nome }} - {{ curriculo.curso.nome }}
+                                            - {{ curriculo.curso.instituicao.sigla }} </option>
+                                    {% endfor %}
+                                {% else %}
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <label class="control-label">Grades:</label>
+                        <select class="form-control chosen-select" name="situacaoGrades" onchange="this.form.submit()">
+                            <option value="">Todas as grades</option>
+                            <option value="1" {% if situacaoGrades == "1" %}
+                                    selected{% endif %}> Originais
+                            </option>
+                            <option value="2" {% if situacaoGrades == "2" %}
+                                    selected{% endif %}> Balanceadas
+                            </option>
+                        </select>
+                    </div>
+                    {#                        <div class="col-sm-2">#}
+                    {#                            <label class="control-label">Acompanhar balanceamento:</label>#}
+                    {#                           <input type="checkbox" onclick="toggleAutoRefresh(this);" id="reloadCB">#}
+                    {#                        </div>#}
+                </form>
+            </div>
+            <div class="ibox-content">
+                <form id="create_form_analise" method="POST" action="{% url 'grade_relatorio_analise_grades' %}">
+                    {% csrf_token %}
+                    <div class="table-responsive">
+                        <table id="grades" class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th title="Nomes das grades">Nome</th>
+                                <th title="Quanto menor o número de créditos, mais uniforme é a distribuição (melhor é o balanceamento) de créditos entre os períodos.">
+                                    Máx. Créditos
+                                </th>
+                                <th title="Quanto menor o acumulado de retenção, menor é a localização de disciplinas com elevados índices de retenção em um mesmo período.">
+                                    Máx. Acumulado Retenção(%)
+                                </th>
+                                <th title="Quanto menor este número, maior é a coesão (menor é a distância) entre as disciplinas inter-relacionadas.">
+                                    Dispersão
+                                </th>
+                                <th title="Currículos aos quais as grades estão vinculadas">Currículo</th>
+                                <th title="Cursos aos quais os currículos e grades estão vinculados">Curso</th>
+                                <th width="15%">Ação</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for grade in grades %}
+                                <tr>
+                                    <td><input type="checkbox" name="checks[]" value="{{ grade.id }}"/></td>
+                                    <td>{{ grade.nome }}</td>
+                                    <td {% if grade.solucao and grade.c < grade.gradeOriginal.c %}
+                                        title="Esta grade possui um balanceamento de créditos {{ grade.melhoriaC }}% melhor do que a grade original."
+                                    {% elif grade.solucao and  grade.c > grade.gradeOriginal.c %}
+                                        title="A grade original possui um balanceamento de créditos {{ grade.melhoriaOriginalC }}% melhor do que esta grade."
+                                    {% elif grade.solucao %}
+                                        title="Esta grade e a grade original possuem balanceamentos de créditos iguais."
+                                    {% endif %}>{{ grade.c }}</td>
+                                    <td {% if  grade.solucao and grade.ir < grade.gradeOriginal.ir %}
+                                        title="Esta grade possui uma distribuição de disciplinas com elevados índices de retenção {{ grade.melhoriaIR }}% melhor do que a grade original."
+                                    {% elif  grade.solucao and grade.ir > grade.gradeOriginal.ir %}
+                                        title="A grade original possui uma distribuição de disciplinas com elevados índices de retenção {{ grade.melhoriaOriginalIR }}% melhor do que esta grade."
+                                    {% elif grade.solucao %}
+                                        title="Esta grade e a grade original possuem distribuições de disciplinas com elevados índices de retenção iguais."
+                                    {% endif %}>{{ grade.ir }}</td>
+                                    <td {% if grade.solucao and grade.rd < grade.gradeOriginal.rd %}
+                                        title="Esta grade possui uma aproximação de disciplinas inter-relacionadas {{ grade.melhoriaRD }}% melhor do que o da grade original."
+                                    {% elif grade.solucao and  grade.rd > grade.gradeOriginal.rd %}
+                                        title="A grade original possui uma aproximação de disciplinas inter-relacionadas {{ grade.melhoriaOriginalC }}% melhor do que esta grade."
+                                    {% elif grade.solucao %}
+                                        title="Esta grade e a grade original possuem iguais aproximações de disciplinas inter-relacionadas."
+                                    {% endif %}>{{ grade.rd }}</td>
+                                    <td>{{ grade.curriculo.nome }}</td>
+                                    <td>{{ grade.curriculo.curso.nome }}
+                                        - {{ grade.curriculo.curso.instituicao.sigla }}</td>
+                                    <td>
+                                        <a href="{% url 'grade_view' grade.id %}"
+                                           data-toggle="tooltip" {% if not grade.solucao %}
+                                           class="btn btn-lilac btn-sm"
+                                           title="Ir para o balanceamento" {% else %} class="btn btn-info btn-sm"
+                                           title="Detalhar"
+                                        {% endif %} data-placement="top"><i
+                                                {% if not grade.solucao %} class="fa fa-arrow-up" {% else %}
+                                                                           class="fa fa-file-text-o"
+                                                {% endif %}></i></a>
+                                        <a class="btn btn-success btn-sm" {% if grade.solucao %}
+                                           disabled="disabled" {% else %} {% endif %}
+                                           href="{% url 'gradedisciplina_create' grade.id %}" data-reload="true"
+                                           title="Vincular disciplinas à grade"
+                                           data-toggle="tooltip" data-placement="top"><i class="fa fa-book"></i></a>
+                                        <a class="btn btn-pink btn-sm" {% if grade.solucao %}
+                                           disabled="disabled" {% else %} {% endif %}
+                                           href="{% url 'requisito_create' grade.id %}" data-reload="true"
+                                           title="Definir pré-requisitos"
+                                           data-toggle="tooltip" data-placement="top"><i class="fa fa-toggle-left"></i></a>
+                                        <a class="btn btn-warning btn-sm" {% if grade.solucao %}
+                                           disabled="disabled" {% else %} {% endif %}
+                                           href="{% url 'relacionamento_create' grade.id %}" data-reload="true"
+                                           title="Definir relacionamentos"
+                                           data-toggle="tooltip" data-placement="top"><i class="fa fa-compress"></i></a>
+                                        <a class="btn btn-primary btn-sm" title="Editar" {% if grade.solucao %}
+                                           disabled="disabled" {% else %} {% endif %}
+                                           href="{% url 'grade_edit' grade.id %}"
+                                           data-toggle="tooltip" data-placement="top"><i class="fa fa-pencil"></i></a>
+                                        <a class="btn btn-danger btn-sm"
+                                           href="{% url 'grade_delete' grade.id %}" data-reload="true" title="Excluir"
+                                           data-toggle="tooltip" data-placement="top"><i class="fa fa-trash"></i></a>
+
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        {% if grades.has_other_pages %}
+                            <ul class="pagination">
+                                {% if grades.has_previous %}
+                                    <li>
+                                        <a href="?page={{ grades.previous_page_number }}&curriculo_id={{ curriculoSelection.id }}&situacaoGrades={{ situacaoGrades }}">&laquo;</a>
+                                    </li>
+                                {% else %}
+                                    <li class="disabled"><span>&laquo;</span></li>
+                                {% endif %}
+                                {% for i in grades.paginator.page_range %}
+                                    {% if grades.number == i %}
+                                        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span>
+                                        </li>
+                                    {% else %}
+                                        <li>
+                                            <a href="?page={{ i }}&curriculo_id={{ curriculoSelection.id }}&situacaoGrades={{ situacaoGrades }}">{{ i }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                {% if grades.has_next %}
+                                    <li>
+                                        <a href="?page={{ grades.next_page_number }}&curriculo_id={{ curriculoSelection.id }}&situacaoGrades={{ situacaoGrades }}">&raquo;</a>
+                                    </li>
+                                {% else %}
+                                    <li class="disabled"><span>&raquo;</span></li>
+                                {% endif %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                    <div class="row">
+                        {% if grades %}
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <button type="submit" class="btn btn-sm btn-primary  pull-left"><i
+                                        class="fa fa-check"></i>
+                                    Comparar
+                                </button>
+                            </div>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

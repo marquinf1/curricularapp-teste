@@ -1,0 +1,161 @@
+{% extends 'admin/base/base.html' %}
+{% block pageTitle %} Administração de currículos {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de currículos</h2>
+            <div class="pull-right">
+                <a class="btn btn-sm btn-primary pull-right" title="Voltar"
+                   href="{% url 'curriculo_index' %}"><i class="fa fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+{#            <nav aria-label="breadcrumb">#}
+{#                <ol class="breadcrumb">#}
+{#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+{#                </ol>#}
+{#            </nav>#}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox float-e-margins">
+                <form id="edit_form" method="POST" action="{% url 'curriculo_edit' curriculo.id %}">
+                    {% csrf_token %}
+                    <div class="ibox-title">
+                        <h5><strong>Detalhes do currículo</strong></h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label class="control-label">Curso:</label>
+                                    <select class="form-control chosen-select" name="curso_id">
+                                        {% if cursos %}
+                                            {% for curso in cursos %}
+                                                <option value="{{ curso.id }}"{% if curso.id == curriculo.curso.id %}
+                                                        selected{% endif %}> {{ curso.nome }} - {{ curso.instituicao.nome }} - {{ curso.instituicao.sigla }}</option>
+                                            {% endfor %}
+                                        {% else %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label for="nome">Nome</label>
+                                    <input type="text" name="nome" class="form-control" value="{{ curriculo.nome }}" required
+                                    data-toggle="popover" title="Nome do currículo" data-placement="top" maxlength="20"
+                                           data-trigger="hover"
+                                           data-content="Defina um nome curto que irá servir para a identificação do currículo."/>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label for="quantidadeDisciplinas">Quantidade de disciplinas:</label>
+                                    <input type="number" name="quantidadeDisciplinas"
+                                           value="{{ curriculo.quantidadeDisciplinas }}" class="form-control" required min="1"
+                                    data-toggle="popover" title="Quantidade de disciplinas" data-placement="top"
+                                           data-trigger="hover"
+                                           data-content="Informe a quantidade de disciplinas do currículo. Orienta-se que as disciplinas de estágio,
+                                           eletivas e optativas não sejam contabilizadas,
+                                           visto que, via de regra, podem ser cursadas em em qualquer momento dos cursos."/>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label for="quantidadePeriodos">Quantidade de períodos:</label>
+                                    <input type="number" name="quantidadePeriodos"
+                                           value="{{ curriculo.quantidadePeriodos }}" class="form-control" required min="1"
+                                    data-toggle="popover" title="Quantidade de períodos" data-placement="top"
+                                           data-trigger="hover"
+                                           data-content="Informe a quantidade de períodos do currículo."/>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label for="quantidadeMaximaDisciplinasPorPeriodo">Quantidade máxima de disciplinas
+                                        por
+                                        período:</label>
+                                    <input type="number" name="quantidadeMaximaDisciplinasPorPeriodo" min="0"
+                                           value="{{ curriculo.quantidadeMaximaDisciplinasPorPeriodo }}"
+                                           class="form-control" required
+                                            data-toggle="popover" title="Quantidade máxima de disciplinas por período"
+                                           data-placement="top" data-trigger="hover"
+                                           data-content="Informe a quantidade máxima de disciplinas que um estudade poderá se matricular em um período. Geralmente,
+                                                        este dado consta nos documentos que norteiam o curso, por exemplo, regulamentos e projetos pedagógicos. Importante
+                                                        ressaltar que, quanto menor for este dado, ou a inserção incorreta do dado,  menores são as chances do sistema balancear o currículo."/>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label for="quantidadeMinimaDisciplinasPorPeriodo">Quantidade mínima de disciplinas
+                                        por
+                                        período:</label>
+                                    <input type="number" name="quantidadeMinimaDisciplinasPorPeriodo" min="0"
+                                           value="{{ curriculo.quantidadeMinimaDisciplinasPorPeriodo }}"
+                                           class="form-control" required
+                                           data-toggle="popover"
+                                           title="Quantidade mínima de disciplinas por período"
+                                           data-placement="top" data-trigger="hover"
+                                           data-content="Informe a quantidade mínima de disciplinas que um estudade poderá se matricular em um período. Geralmente,
+                                                        este dado consta nos documentos que norteiam o curso, por exemplo, regulamentos e projetos pedagógicos. Caso não exista esta definição,
+                                           informe 1."/>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label for="cargaMaximaPorPeriodo">Quantidade máxima de créditos por
+                                        período:</label>
+                                    <input type="number" name="cargaMaximaPorPeriodo" min="0"
+                                           value="{{ curriculo.cargaMaximaPorPeriodo }}" class="form-control"
+                                    required data-toggle="popover"
+                                           title="Quantidade máxima de créditos por período"
+                                           data-placement="top" data-trigger="hover"
+                                           data-content="Informe a quantidade máxima de créditos que um estudade poderá cursar em um período. Geralmente,
+                                                        este dado consta nos documentos que norteiam o curso, por exemplo, regulamentos e projetos pedagógicos.
+                                                Importante ressaltar que, quanto menor for este dado, ou a inserção incorreta do dado, menores são as chances do
+                                                sistema balancear o currículo."/>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label for="cargaMinimaPorPeriodo">Quantidade mínima de créditos por
+                                        período:</label>
+                                    <input type="number" name="cargaMinimaPorPeriodo"
+                                           value="{{ curriculo.cargaMinimaPorPeriodo }}" class="form-control" required min="0"
+                                     data-toggle="popover" title="Quantidade mínima de créditos por período"
+                                           data-placement="top" data-trigger="hover"
+                                           data-content="Informe a quantidade mínima de créditos que um estudade poderá cursar em um período. Geralmente,
+                                                        este dado consta nos documentos que norteiam o curso, por exemplo, regulamentos e projetos pedagógicos.
+                                                        Caso não exista esta definição,
+                                           informe o menor número de créditos existente entre todas as disciplinas."/>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label for="quantidadePeriodosCicloBasico">Quantidade de períodos do ciclo
+                                        básico:</label>
+                                    <input type="number" name="quantidadePeriodosCicloBasico"
+                                           value="{{ curriculo.quantidadePeriodosCicloBasico }}" class="form-control" required min="0"
+                                            data-toggle="popover" title="Quantidade de períodos do ciclo básico"
+                                           data-placement="top" data-trigger="hover"
+                                           data-content="Caso seja aconselhável (não obrigatório) que algumas disciplinas sejam cursadas até um determinado período, informe
+                                           este período."/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <button type="submit" class="btn btn-sm btn-primary  pull-left"><i
+                                        class="fa fa-check"></i>
+                                    Salvar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

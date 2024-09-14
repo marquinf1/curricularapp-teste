@@ -1,0 +1,154 @@
+{% extends 'admin/base/base.html' %}
+{% block pageTitle %} Administração de relacionamentos entre disciplinas da grade {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de relacionamentos entre disciplinas da grade</h2>
+            <div class="pull-right">
+                <a class="btn btn-sm btn-primary pull-right" title="Voltar"
+                   href="{% url 'relacionamento_index' %}"><i class="fa fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+            {#            <nav aria-label="breadcrumb">#}
+            {#                <ol class="breadcrumb">#}
+            {#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+            {#                </ol>#}
+            {#            </nav>#}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox float-e-margins">
+                <form id="edit_form" method="POST" action="{% url 'relacionamento_edit' relacionamento.id %}">
+                    {% csrf_token %}
+                    <div class="ibox-title">
+                        <h5><strong>Editar relacionamento entre disciplinas da grade</strong></h5>
+                    </div>
+
+                    {% if 'relacionamentoMesmaDisciplina' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Relacionamento não definido! Disciplinas anterior e posterior são iguais!
+                        </div>
+                    {% endif %}
+
+                    {% if 'relacionamentoExistenteEntreDisciplinas' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Já existe um relacionamento entre estas disciplinas cadastrado!
+                        </div>
+                    {% endif %}
+                    {% if 'anteriorUltimoPeriodo' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação Não realizada! A disciplina anterior está fixada no último período!
+                        </div>
+                    {% endif %}
+                    {% if 'periodoAnteriorSuperiorPeriodoPosterior' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! O período fixado para a disciplina anterior é maior que aquele da disciplina posterior!
+                        </div>
+                    {% endif %}
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <input type="hidden" id="grade_id" name="grade_id"
+                                           value="{{ grade.id }}" required>
+                                    <label for="grade">Grade</label>
+                                    <input type="text" name="grade" class="form-control" disabled='disabled'
+                                           value="{{ grade.nome }} - {{ grade.curriculo.nome }} - {{ grade.curriculo.curso.nome }} - {{ grade.curriculo.curso.instituicao.sigla }}" required/>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group" title="Disciplina relacionada com outra."
+                                            data-toggle="popover"
+                                           data-placement="top" data-trigger="hover"
+                                           data-content="Uma disciplina A é relacionada com uma disciplina B quando parte do seu conteúdo
+                                           é desejável para que B seja cursada. Se A possui relacionamento com B, B não possui relacionamento com A.
+                                           A pontuação deve ser um número inteiro entre 1 e 9. Quanto maior, mais forte é o relacionamento.
+                                           Caso A seja pré-requisito para B, o relacionamento automaticamente é criado
+                                            no cadastro de pré-requisitos com pontuação 9.">
+                                    <label class="control-label">Disciplina relacionamento anterior:</label>
+                                    <select class="form-control chosen-select"
+                                            name="gradeDisciplinaRelacionamentoAnterior_id" title="Disciplina que possui pontuação de relacionamento com outra.">
+                                        {% if gradesDisciplinas %}
+                                            {% for gradeDisciplina in gradesDisciplinas %}
+                                                <option value="{{ gradeDisciplina.id }}"
+                                                        {% if gradeDisciplina.id == relacionamento.gradeDisciplinaRelacionamentoAnterior.id %}
+                                                        selected{% endif %}> {{ gradeDisciplina.disciplina.nome }}
+                                                    - {{ gradeDisciplina.disciplina.codigo }} </option>
+                                            {% endfor %}
+                                        {% else %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group" title="Disciplina que, para ser cursada, é desejável que a anterior já tenha sido cursada ou esteja em um mesmo período que o seu."
+                                            data-toggle="popover"
+                                           data-placement="top" data-trigger="hover"
+                                           data-content="Uma disciplina posterior possui a característica de que é desejável que a anterior já tenha sido cursada. Não necessariamente
+                                           uma disciplina anterior é um pré-requisito.">
+                                    <label class="control-label">Disciplina relacionamento posterior:</label>
+                                    <select class="form-control chosen-select"
+                                            name="gradeDisciplinaRelacionamentoPosterior_id" title="Disciplina que, para ser cursada, é desejável que a anterior já tenha sido cursada ou esteja em um mesmo período que o seu.">
+                                        {% if gradesDisciplinas %}
+                                            {% for gradeDisciplina in gradesDisciplinas %}
+                                                <option value="{{ gradeDisciplina.id }}"
+                                                        {% if gradeDisciplina.id == relacionamento.gradeDisciplinaRelacionamentoPosterior.id %}
+                                                        selected{% endif %}> {{ gradeDisciplina.disciplina.nome }}
+                                                    - {{ gradeDisciplina.disciplina.codigo }} </option>
+                                            {% endfor %}
+                                        {% else %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label for="relacionamento">Relacionamento</label>
+                                    <input type="number" name="relacionamento" class="form-control"
+                                           value="{{ relacionamento.relacionamento }}" required/>
+                                </div>
+                            </div>
+                            {#                        <div class="col-xs-12 col-sm-12 col-md-12">#}
+                            {#                            <div class="form-group">#}
+                            {#                                <label for="distanciaMinima">Distancia Mínima</label>#}
+                            {#                                <input type="number" name="distanciaMinima" class="form-control"#}
+                            {#                                       value="{{ relacionamento.distanciaMinima }}"/>#}
+                            {#                            </div>#}
+                            {#                        </div>#}
+                            {#                        <div class="col-xs-12 col-sm-12 col-md-12">#}
+                            {#                            <div class="form-group">#}
+                            {#                                <label for="distanciaMaxima">Distancia Máxima</label>#}
+                            {#                                <input type="number" name="distanciaMaxima" class="form-control"#}
+                            {#                                       value="{{ relacionamento.distanciaMaxima }}"/>#}
+                            {#                            </div>#}
+                            {#                        </div>#}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <button type="submit" class="btn btn-sm btn-primary  pull-left"><i
+                                        class="fa fa-check"></i>
+                                    Salvar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

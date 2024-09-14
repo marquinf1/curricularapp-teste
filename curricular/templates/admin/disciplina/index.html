@@ -1,0 +1,139 @@
+{% extends 'admin/base/base.html' %}
+{% block pageTitle %} Administração de disciplinas {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de disciplinas</h2>
+            <div class="pull-right">
+                <a class="btn btn-sm btn-primary pull-right" title="Adicionar"
+                   href="{% url 'disciplina_create' %}"><i class="fa fa-plus"></i> Adicionar
+                </a>
+            </div>
+            {#            <nav aria-label="breadcrumb">#}
+            {#                <ol class="breadcrumb">#}
+            {#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+            {#                </ol>#}
+            {#            </nav>#}
+        </div>
+    </div>
+    <div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5><strong>Disciplinas cadastradas</strong></h5>
+    </div>
+
+    {% if 'success' == message %}
+        <div class="alert alert-success" role="alert">
+            <button class="close" data-dismiss="alert">
+                <small><sup>x</sup></small>
+            </button>
+            Disciplina salva com sucesso!
+        </div>
+    {% endif %}
+
+    {% if 'successDelete' == message %}
+        <div class="alert alert-success" role="alert">
+            <button class="close" data-dismiss="alert">
+                <small><sup>x</sup></small>
+            </button>
+            Disciplina apagada com sucesso!
+        </div>
+    {% endif %}
+
+    {% if 'disciplinaJaCadastrada' == message %}
+        <div class="alert alert-danger" role="alert">
+            <button class="close" data-dismiss="alert">
+                <small><sup>x</sup></small>
+            </button>
+            Já existe uma disciplina cadastrada para este curso com este nome e/ou código!
+        </div>
+    {% endif %}
+
+    {% if 'gradeAssociada' == message %}
+        <div class="alert alert-danger" role="alert">
+            <button class="close" data-dismiss="alert">
+                <small><sup>x</sup></small>
+            </button>
+            A disciplina não pôde ser apagada, pois existe alguma grade associada à ela!
+        </div>
+    {% endif %}
+
+    <div class="ibox-content">
+        <div class="row">
+            <form id="create_form" method="POST" action="{% url 'disciplina_index' %}">
+                {% csrf_token %}
+                <div class="col-sm-9 m-b-xs">
+                    <div data-toggle="buttons" class="btn-group">
+                        <label class="control-label">Curso:</label>
+                        <select class="form-control chosen-select" name="curso_id" onchange="this.form.submit()">
+                            <option value="">Todas os cursos</option>
+                            {% if cursos %}
+                                {% for curso in cursos %}
+                                    <option value="{{ curso.id }}"{% if curso.id == cursoSelection.id %}
+                                            selected{% endif %}> {{ curso.nome }}
+                                        - {{ curso.instituicao.sigla }} </option>
+                                {% endfor %}
+                            {% else %}
+                            {% endif %}
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="ibox-content">
+            <div class="table-responsive">
+                <table id="disciplinas" class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th title="Nomes das disciplinas">Nome</th>
+                        <th title="Códigos das disciplinas">Código</th>
+                        <th title="Cursos das disciplinas">Curso</th>
+                        <th width="12%">Ação</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for disciplina in disciplinas %}
+                        <tr>
+                            <td>{{ disciplina.nome }}</td>
+                            <td>{{ disciplina.codigo }}</td>
+                            <td>{{ disciplina.curso.nome }} - {{ disciplina.curso.instituicao.sigla }}</td>
+                            <td>
+                                <a class="btn btn-info btn-sm" href="{% url 'disciplina_view' disciplina.id %}"
+                                   data-toggle="tooltip" title="Detalhar" data-placement="top"><i class="fa fa-file-text-o"></i></a>
+                                <a class="btn btn-primary btn-sm" href="{% url 'disciplina_edit' disciplina.id %}"
+                                   data-toggle="tooltip" title="Editar" data-placement="top"><i class="fa fa-pencil"></i></a>
+                                <a class="btn btn-danger btn-sm"
+                                   href="{% url 'disciplina_delete' disciplina.id %}" data-reload="true" title="Excluir"
+                                   data-toggle="tooltip" data-placement="top"><i class="fa fa-trash"></i></a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% if disciplinas.has_other_pages %}
+                    <ul class="pagination">
+                        {% if disciplinas.has_previous %}
+                            <li><a href="?page={{ disciplinas.previous_page_number }}&curso_id={{ cursoSelection.id }}">&laquo;</a>
+                            </li>
+                        {% else %}
+                            <li class="disabled"><span>&laquo;</span></li>
+                        {% endif %}
+                        {% for i in disciplinas.paginator.page_range %}
+                            {% if disciplinas.number == i %}
+                                <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                            {% else %}
+                                <li><a href="?page={{ i }}&curso_id={{ cursoSelection.id }}">{{ i }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if disciplinas.has_next %}
+                            <li><a href="?page={{ disciplinas.next_page_number }}&curso_id={{ cursoSelection.id }}">&raquo;</a>
+                            </li>
+                        {% else %}
+                            <li class="disabled"><span>&raquo;</span></li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

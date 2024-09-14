@@ -1,0 +1,42 @@
+{% extends 'admin/base/reports/report.html' %}
+{% block reportTitle %} {{ tituloRelatorio }} {% endblock %}
+{% block content %}
+    {% block layout_style %}
+        <style> @page {
+            size: letter landscape;
+            margin: 2cm;
+        } </style>
+    {% endblock %}
+<div class="ibox float-e-margins">
+            <h5>{% if grade.gradeOriginal %} Grade original: {{ grade.gradeOriginal.nome }} <BR> {% else %}
+            {% endif %}
+                Grade: {{ grade.nome }} <BR> Currículo: {{ grade.curriculo }}</h5>
+    <div class="ibox-content">
+         <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Período</th>
+                <th>Nome</th>
+                <th>Código</th>
+                <th>Créditos</th>
+                <th>Retenção</th>
+                <th>Pré-requisitos</th>
+            </tr>
+            </thead>
+
+            {% for gradeDisciplina in gradeDisciplinas %}
+                <tr>
+                    <td style="text-align:center">{{ gradeDisciplina.periodo }}</td>
+                    <td>{{ gradeDisciplina.disciplina.nome }}</td>
+                    <td>{{ gradeDisciplina.disciplina.codigo }}</td>
+                    <td style="text-align:center">{{ gradeDisciplina.creditos }}</td>
+                    <td style="text-align:center">{{ gradeDisciplina.retencao }}%</td>
+                    <td>{% for prerequisito in gradeDisciplina.prerequisitos %}
+                        <label class="label label-success">{{ prerequisito.gradeDisciplinaRequisito.disciplina.codigo }}</label>
+                    {% endfor %}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

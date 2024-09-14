@@ -1,0 +1,438 @@
+{% extends 'aluno/base/base.html' %}
+
+{% block pageTitle %} Administração de grades {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de grades</h2>
+            <div class="pull-right">
+                <a class="btn btn-sm btn-primary pull-right" title="Voltar"
+                   href="{% if grade.gradeAluno %}{% url 'aluno_grade_gradealuno' %}{% else %} {% url 'aluno_grade_index' %}{% endif %}"><i
+                        class="fa fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+            {#            <nav aria-label="breadcrumb">#}
+            {#                <ol class="breadcrumb">#}
+            {#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+            {#                </ol>#}
+            {#            </nav>#}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox float-e-margins">
+                <form id="create_form" method="POST" action="{% url 'aluno_grade_balance_first' grade.id %}">
+                    {% csrf_token %}
+                    <div class="ibox-title">
+                        <h5><strong>Detalhes da grade curricular</strong></h5>
+                    </div>
+                    {% if 'successBalance' == message %}
+                        <div class="alert alert-success" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Grade curricular balanceada com sucesso!
+                        </div>
+                    {% endif %}
+                    {% if 'successDeleteSolucoes' == message %}
+                        <div class="alert alert-success" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Soluções da grade curricular apagadas com sucesso!
+                        </div>
+                    {% endif %}
+                    {% if 'gradeEmBalanceamento' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            A grade foi balanceada ou está em processo de balanceamento! Verifique na lista de grades.
+                        </div>
+                    {% endif %}
+                    {% if 'successDeleteDisciplinasCursar' == message %}
+                        <div class="alert alert-success" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Lista de disciplinas a cursar apagada com sucesso!
+                        </div>
+                    {% endif %}
+                    {% if 'balanceando' == message %}
+                        <div class="alert alert-warning" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            A grade curricular está em processo de balanceamento. Você pode acompanhar a geração dos
+                            resultados clicando <a title="Lista de grades"
+                                   href="{% url 'aluno_gradesbalanceadas_index' grade.id %}">
+                                    aqui</a>.
+                        </div>
+                    {% endif %}
+                    {% if 'problemaUltimoBalanceamento' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            A configuração do currículo do curso e/ou dados informados na sua grade impediram o balanceamento na tentativa mais recente.
+                        </div>
+                    {% endif %}
+                    {% if 'balanceandoConcluido' == message %}
+                        <div class="alert alert-warning" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Grade balanceada! Veja os resultados clicando <a title="Lista de grades"
+                                   href="{% url 'aluno_gradesbalanceadas_index' grade.id %}" target="_blank">
+                                    aqui</a>.
+                        </div>
+                    {% endif %}
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <strong>Instituicao:</strong>
+                                    {{ grade.curriculo.curso.instituicao.nome }}
+                                    - {{ grade.curriculo.curso.instituicao.sigla }}
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <strong>Curso:</strong>
+                                    {{ grade.curriculo.curso.nome }} - {{ grade.curriculo.curso.codigo }}
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <strong>Currículo:</strong>
+                                    {{ grade.curriculo.nome }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <strong>Nome:</strong>
+                                    {{ grade.nome }}
+                                </div>
+                            </div>
+                            {% if grade.gradeAluno and not grade.solucao %}
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <strong>Grade do curso:</strong>
+                                        {{ grade.gradeOriginal.nome }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            {% if grade.gradeAluno and grade.solucao %}
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <strong>Grade do estudante:</strong>
+                                        {{ grade.gradeOriginal.nome }}
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <strong>Grade do curso:</strong>
+                                        {{ grade.gradeOriginal.gradeOriginal.nome }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="row">
+                            {% if grade.gradeAluno %}
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <strong>Períodos disponíveis:</strong>
+                                        {{ grade.periodosRestantes }}
+                                    </div>
+                                </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <strong>Número de períodos que já se passaram desde seu ingresso no
+                                        curso:</strong>
+                                    {{ grade.periodoCronologico|add:-1 }}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="row">
+                            {% if grade.solucao %}
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <strong>Maior número de créditos:</strong>
+                                        {{ grade.c }}
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <strong>Maior acumulado de índices de retenção(%):</strong>
+                                        {{ grade.ir }}
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <strong>Dispersão das disciplinas inter-relacionadas:</strong>
+                                        {{ grade.rd }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="row">
+                            {% if not grade.solucao and grade.gradeAluno %}
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <strong>Status:</strong>
+                                        <label id="labelStatus" class="label label-success">
+                                            {% if grade.balanceada %} Balanceada {% elif grade.emBalanceamento %}
+                                                Em balanceamento... {% elif grade.balanceamentoInterrompido %}
+                                                Balanceamento interrompido {% else %}Aguardando
+                                                balanceamento{% endif %}</label>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if not grade.solucao and grade.gradeAluno and not grade.balanceada and not grade.emBalanceamento%}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="ibox float-e-margins">
+                                    <div class="ibox-title">
+                                        <h5><strong>Configurações do balanceamento <a href="#"
+                                                                                      class="fa fa-info-circle"
+                                                                                      title="Estas configurações são, basicamente, para serem usadas na tentativa de verificar o motivo do balanceamento não ter retornado nenhum resultado. Caso, após modificações nos campos abaixo, o balanceamento ocorra com sucesso, pode ser um indicativo de equívocos em inserções prévias de dados, como nas configurações do ciclo básico, período fixo, relacionamentos, pré-requisitos e parametros de carga máxima e quantidade máxima definidos no currículo."></a>
+                                        </strong></h5>
+                                    </div>
+                                    <div class="ibox-content">
+                                        <div class="row">
+                                            <div class="col-sm-2">
+                                                <div class="form-group"
+                                                     title="Indica se o sistema utilizará o critério de balanceamento da carga de créditos"
+                                                     data-toggle="popover"
+                                                     data-placement="top" data-trigger="hover"
+                                                     data-content="Informe se o sistema utilizará o critério de créditos.">
+                                                    <label class="control-label">Balancear a carga de
+                                                        créditos?</label>
+                                                    <select class="form-control chosen-select"
+                                                            name="criterioGreditos"
+                                                            required>
+                                                        <option value='S'>Sim</option>
+                                                        <option value='N'>Não</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="form-group"
+                                                     title="Indica se o sistema utilizará o critério de retenção"
+                                                     data-toggle="popover"
+                                                     data-placement="top" data-trigger="hover"
+                                                     data-content="Informe se o sistema utilizará o critério de redução de localização em um mesmo período de disciplinas com índices elevados de retenção.">
+                                                    <label class="control-label">Reduzir as localizações de
+                                                        disciplinas retentoras em um mesmo período?</label>
+                                                    <select class="form-control chosen-select"
+                                                            name="criterioRetencao"
+                                                            required>
+                                                        <option value='S'>Sim</option>
+                                                        <option value='N'>Não</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="form-group"
+                                                     title="Indica se o sistema utilizará o critério de distância entre disciplinas inter-relacionadas"
+                                                     data-toggle="popover"
+                                                     data-placement="top" data-trigger="hover"
+                                                     data-content="Informe se o sistema utilizará o critério de redução da dispersão(distância) entre disciplinas inter-relacionadas.">
+                                                    <label class="control-label">Reduzir as distâncias entre
+                                                        disciplinas
+                                                        inter-relacionadas?</label>
+                                                    <select class="form-control chosen-select"
+                                                            name="criterioDistancia"
+                                                            required>
+                                                        <option value='S'>Sim</option>
+                                                        <option value='N'>Não</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-2">
+                                                <div class="form-group"
+                                                     title="Indica se o sistema aplicará restrição de disciplinas do ciclo básico"
+                                                     data-toggle="popover"
+                                                     data-placement="top" data-trigger="hover"
+                                                     data-content="Informe se disciplinas classificadas como de ciclo básico deverão estar
+                                                     localizadas até o período limite definido para disciplinas com esta classificação.">
+                                                    <label class="control-label">Aplicar restrição de ciclo
+                                                        básico?</label>
+                                                    <select class="form-control chosen-select"
+                                                            name="restricaoCicloBasico"
+                                                            required>
+                                                        <option value='S'>Sim</option>
+                                                        <option value='N'>Não</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div class="form-group"
+                                                     title="Indica se o sistema aplicará a restrição de disciplinas com período fixo"
+                                                     data-toggle="popover"
+                                                     data-placement="top" data-trigger="hover"
+                                                     data-content="Informe se disciplinas informadas como de período fixo deverão estar localizadas nos seus respectivos
+                                                     períodos defindos.">
+                                                    <label class="control-label">Aplicar restrição de período
+                                                        fixo?</label>
+                                                    <select class="form-control chosen-select"
+                                                            name="restricaoPeriodoFixo"
+                                                            required>
+                                                        <option value='S'>Sim</option>
+                                                        <option value='N'>Não</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div class="form-group"
+                                                     title="Indica se o sistema aplicará a restrição de carga máxima por período"
+                                                     data-toggle="popover"
+                                                     data-placement="top" data-trigger="hover"
+                                                     data-content="Informe se o sistema aplicará a restrição de quantidade máxima de créditos em um período.">
+                                                    <label class="control-label">Aplicar restrição de carga
+                                                        máxima?</label>
+                                                    <select class="form-control chosen-select"
+                                                            name="restricaoCargaMaxima"
+                                                            required>
+                                                        <option value='S'>Sim</option>
+                                                        <option value='N'>Não</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <div class="form-group"
+                                                     title="Indica se o sistema aplicará a restrição de quantidade máxima de disciplinas por período"
+                                                     data-toggle="popover"
+                                                     data-placement="top" data-trigger="hover"
+                                                     data-content="Informe se o sistema aplicará a restrição de quantidade máxima de disciplinas por período.">
+                                                    <label class="control-label">Aplicar restrição de quantidade
+                                                        máxima
+                                                        de disciplinas?</label>
+                                                    <select class="form-control chosen-select"
+                                                            name="restricaoQuantidadeMaxima"
+                                                            required>
+                                                        <option value='S'>Sim</option>
+                                                        <option value='N'>Não</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <div class="form-group"
+                                                     title="Indica se o sistema aplicará a restrição de pré-requisitos"
+                                                     data-toggle="popover"
+                                                     data-placement="top" data-trigger="hover"
+                                                     data-content="Informe se a configuração de pré-requisitos será aplicada.">
+                                                    <label class="control-label">Aplicar restrição de
+                                                        pré-requisitos?</label>
+                                                    <select class="form-control chosen-select"
+                                                            name="restricaoPreRequisitos"
+                                                            required>
+                                                        <option value='S'>Sim</option>
+                                                        <option value='N'>Não</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            {% if grade.gradeAluno and not grade.solucao and gradesDisciplinasCursar %}
+                                {#                                    <a class="btn btn-sm btn-primary" {% if grade.balanceada %}#}
+                                {#                                       disabled {% else %} {% endif %}#}
+                                {#                                       title="Obter grades balanceadas" name="balancear" id="balancear"#}
+                                {#                                       href="{% url 'aluno_grade_balance' grade.id %}"><i#}
+                                {#                                            class="fa fa-balance-scale"></i> Balancear#}
+                                {#                                    </a>#}
+                                <button title="Obter grades balanceadas" name="balancear" id="balancear"
+                                        type="submit" onclick="changeButtonLabel()"
+                                        class="btn btn-sm btn-lilac fa fa-balance-scale  pull-left"
+                                        {% if grade.balanceada or grade.balanceamentoInterrompido or grade.emBalanceamento %}
+                                        disabled {% endif %}>
+                                    Balancear
+                                </button>
+                            {% endif %}
+                            {#                            <a class="btn btn-sm btn-warning {% if grade.balanceada %} disabled {% else %} {% endif %}"#}
+                            {#                               title="pararBalanceamento" name="pararBalanceamento" id="pararBalanceamento"#}
+                            {#                               href="{% url 'grade_stop_balance' grade.id %}"><i class="fa fa-stop"></i> Cancelar#}
+                            {#                            </a>#}
+                            {% if grade.gradeAluno and not grade.solucao and grade.balanceada or grade.balanceamentoInterrompido %}
+{#                                {% if not grade.emBalanceamento %}#}
+                                    <a class="btn btn-sm btn-danger"
+                                       title="Apagar grades balanceadas"
+                                       href="{% url 'aluno_grade_delete_solucoes' grade.id %}"><i
+                                            class="fa fa-trash-o"></i>
+                                        Apagar soluções
+                                    </a>
+{#                                {% endif %}#}
+                            {% endif %}
+                            {#{% if grade.gradeAluno and not grade.solucao %}#}
+                            {#<a class="fa fa-stop btn btn-sm btn-danger" name="atualizaVariavelPararOtimizacao"#}
+                            {#   id="atualizaVariavelPararOtimizacao"#}
+                            {#   {% if not 'balanceando' == message or grade.balanceada or grade.balanceamentoInterrompido %}disabled{% endif %}#}
+                            {#   title="Parar balanceamento"#}
+                            {#   href="{% url 'grade_atualiza_variavel_parar_otimizacao' grade.id %}"><i#}
+                            {#        class="fa fa-stop-o"></i>#}
+                            {#   Parar balanceamento#}
+                            {#</a>#}
+                            {#{% endif %}#}
+                            {% if grade.gradeAluno and grade.balanceada %}
+                                <a class="btn btn-sm btn-success"
+                                   title="Ver grades balanceadas"
+                                   href="{% url 'aluno_gradesbalanceadas_index'%}"><i class="fa fa-list"></i>
+                                    Ver grades balanceadas
+                                </a>
+                            {% endif %}
+                            {% if grade.gradeAluno and not grade.balanceada and not grade.emBalanceamento and not grade.solucao or grade.problemaUltimoBalanceamento %}
+                                <a class="btn btn-sm btn-success"
+                                   title="Adicionar disciplina à grade" name="adicionarDisciplinas"
+                                   id="adicionarDisciplinas"
+                                   href="{% url 'aluno_gradedisciplina_create' grade.id %}"><i
+                                        class="fa fa-plus"></i> Informar disciplinas a cursar
+                                </a>
+                            {% endif %}
+                            {% if grade.gradeAluno and not grade.solucao and gradesDisciplinasCursar and not grade.emBalanceamento or grade.problemaUltimoBalanceamento %}
+                                <a class="btn btn-sm btn-danger"
+                                   title="Apagar lista de disciplinas a cursar" name="apagarDisciplinasCursar"
+                                   id="apagarDisciplinasCursar" name="apagarDisciplinasCursar"
+                                   href="{% url 'aluno_grade_delete_disciplinas_cursar' grade.id %}"><i
+                                        class="fa fa-trash"></i> Apagar disciplinas a cursar
+                                </a>
+                            {% endif %}
+                            {% if not grade.gradeAluno or grade.solucao %}
+                                <a class="btn btn-sm btn-info" title="Imprimir a grade" id="imprimirGrade" name="imprimirGrade"
+                                   href="{% url 'aluno_grade_relatorio' grade.id %}" target="_blank"><i
+                                        class="fa fa-print"></i>
+                                    Imprimir
+                                </a>
+                            {% endif %}
+                            {#                            {% if grade.solucao%}#}
+                            {#                            <a class="btn btn-sm btn-success" title="Imprimir comparativo entre as grades original e balanceada"#}
+                            {#                               href="{% url 'aluno_grade_relatorio_analise' grade.id %}" target="_blank"><i class="fa fa-bars"></i>#}
+                            {#                                Análise#}
+                            {#                            </a>#}
+                            {#                            {% endif %}#}
+
+                            {#                            <a class="btn btn-sm btn-success" title="imprimirAnalise"#}
+                            {#                               href="{% url 'grade_relatorio_analise' grade.id %}"><i class="fa fa-bars"></i>#}
+                            {#                                Análise#}
+                            {#                            </a>#}
+                        </div>
+                    </div>
+            </div>
+            </form>
+        </div>
+    </div>
+    </div>
+{% endblock %}

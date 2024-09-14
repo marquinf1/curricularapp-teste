@@ -1,0 +1,181 @@
+{% extends 'aluno/base/base.html' %}
+
+{% block pageTitle %} Administração de grades {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de grades</h2>
+            <div class="pull-right">
+                <a class="btn btn-sm btn-primary pull-right" title="Voltar"
+                   href="{% url 'aluno_grade_gradealuno' %}"><i class="fa fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+            {#            <nav aria-label="breadcrumb">#}
+            {#                <ol class="breadcrumb">#}
+            {#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+            {#                </ol>#}
+            {#            </nav>#}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5><strong>Detalhes da grade curricular</strong></h5>
+                </div>
+                {% if 'successBalance' == message %}
+                    <div class="alert alert-success" role="alert">
+                        <button class="close" data-dismiss="alert">
+                            <small><sup>x</sup></small>
+                        </button>
+                        Grade curricular balanceada com sucesso!
+                    </div>
+                {% endif %}
+                {% if 'successDeleteSolucoes' == message %}
+                    <div class="alert alert-success" role="alert">
+                        <button class="close" data-dismiss="alert">
+                            <small><sup>x</sup></small>
+                        </button>
+                        Soluções da grade curricular apagadas com sucesso!
+                    </div>
+                {% endif %}
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Nome:</strong>
+                                {{ grade.nome }}
+                            </div>
+                        </div>
+                        {% if grade.gradeOriginal %}
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Grade original:</strong>
+                                    {{ grade.gradeOriginal.nome }}
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Currículo:</strong>
+                                {{ grade.curriculo.nome }}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Curso:</strong>
+                                {{ grade.curriculo.curso.nome }}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Instituicao:</strong>
+                                {{ grade.curriculo.curso.instituicao.nome }}
+                                - {{ grade.curriculo.curso.instituicao.sigla }}
+                            </div>
+                        </div>
+                        {% if grade.gradeAluno %}
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Períodos disponíveis:</strong>
+                                    {{ grade.periodosRestantes }}
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Período cronológico:</strong>
+                                    {{ grade.periodoCronologico }}
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if grade.solucao %}
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Peso do critério de créditos:</strong>
+                                    {{ grade.pc }}
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Peso do critério de índices de retenção:</strong>
+                                    {{ grade.pir }}
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Peso do critério de dispersão:</strong>
+                                    {{ grade.prd }}
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Maior número de créditos:</strong>
+                                    {{ grade.c }}
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Maior acumulado de índices de retenção:</strong>
+                                    {{ grade.ir }}
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Custo do layout:</strong>
+                                    {{ grade.rd }}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            {% if grade.gradeAluno and not grade.solucao %}
+                                <a class="btn btn-sm btn-lilac   {% if grade.balanceada or grade.emBalanceamento or grade.balanceamentoInterrompido or grade.solucao or not gradesDisciplinasCursar %} disabled {% else %} {% endif %}"
+                                   title="Obter grades balanceadas" name="balancear" id="balancear"
+                                   href="{% url 'aluno_grade_balance' grade.id %}"><i class="fa fa-balance-scale"></i>
+                                    Balancear
+                                </a>
+                                {#                            <a class="btn btn-sm btn-warning {% if grade.balanceada %} disabled {% else %} {% endif %}"#}
+                                {#                               title="pararBalanceamento" name="pararBalanceamento" id="pararBalanceamento"#}
+                                {#                               href="{% url 'grade_stop_balance' grade.id %}"><i class="fa fa-stop"></i> Cancelar#}
+                                {#                            </a>#}
+                                <a class="btn btn-sm btn-danger  {% if grade.balanceada or grade.emBalanceamento or grade.balanceamentoInterrompido %} {% else %} disabled {% endif %}"
+                                   title="Apagar grades balanceadas"
+                                   href="{% url 'aluno_grade_delete_solucoes' grade.id %}"><i class="fa fa-trash-o"></i>
+                                    Apagar soluções
+                                </a>
+                                <a class="btn btn-sm btn-success   {% if grade.balanceada or grade.emBalanceamento or grade.balanceamentoInterrompido or grade.solucao is True %} disabled {% else %} {% endif %}"
+                                   title="Adicionar disciplina à grade" name="adicionarDisciplinas"
+                                   id="adicionarDisciplinas"
+                                   href="{% url 'aluno_gradedisciplina_create' grade.id %}"><i class="fa fa-plus"></i>
+                                    Informar disciplinas a serem cursadas
+                                </a>
+                            {% endif %}
+                            {% if grade.gradeAluno and grade.solucao or grade.gradeOriginal is None %}
+                                <a class="btn btn-sm btn-info" title="Imprimir a grade"
+                                   href="{% url 'aluno_grade_relatorio' grade.id %}" target="_blank"><i
+                                        class="fa fa-print"></i>
+                                    Imprimir
+                                </a>
+                            {% endif %}
+                            {% if grade.gradeAluno and grade.solucao %}
+                                <a class="btn btn-sm btn-success"
+                                   title="Imprimir comparativo entre as grades original e balanceada"
+                                   href="{% url 'aluno_grade_relatorio_analise' grade.id %}" target="_blank"><i
+                                        class="fa fa-bars"></i>
+                                    Análise
+                                </a>
+                            {% endif %}
+
+                            {#                            <a class="btn btn-sm btn-success" title="imprimirAnalise"#}
+                            {#                               href="{% url 'grade_relatorio_analise' grade.id %}"><i class="fa fa-bars"></i>#}
+                            {#                                Análise#}
+                            {#                            </a>#}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

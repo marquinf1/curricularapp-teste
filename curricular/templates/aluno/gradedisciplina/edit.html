@@ -1,0 +1,260 @@
+{% extends 'aluno/base/base.html' %}
+{% block pageTitle %} Administração de disciplinas da grade {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de disciplinas da grade</h2>
+            <div class="pull-right">
+                <a class="btn btn-sm btn-primary pull-right" title="Voltar"
+                   href="{% url 'aluno_gradedisciplina_index' %}"><i class="fa fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+            {#            <nav aria-label="breadcrumb">#}
+            {#                <ol class="breadcrumb">#}
+            {#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+            {#                </ol>#}
+            {#            </nav>#}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox float-e-margins">
+                <form id="edit_form" method="POST"
+                      action="{% url 'aluno_gradedisciplina_edit' gradeDisciplinaCursar.id %}">
+                    {% csrf_token %}
+                    <div class="ibox-title">
+                        <h5><strong>Editar disciplina a cursar</strong></h5>
+                    </div>
+                    {% if 'successEdit' == message %}
+                        <div class="alert alert-success" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! Disciplina a cursar alterada com sucesso!
+                        </div>
+                    {% endif %}
+                    {% if 'periodoFixoInformarPeriodo' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! Para disciplinas de período fixo, é necessário informar a qual
+                            período a disciplina deverá pertencer!
+                        </div>
+                    {% endif %}
+                    {% if 'disciplinaAnteriorPrimeiroPeriodo' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! O período deve ser maior ou igual a 1!
+                        </div>
+                    {% endif %}
+                    {% if 'disciplinaAposUltimoPeriodo' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! Tentativa de fixação de disciplina após o último período!
+                        </div>
+                    {% endif %}
+                    {% if 'periodoInformadoPeriodoFixoNaoInformado' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! Caso deseje que uma disciplina seja fixada em um período específico,
+                            também selecione 'SIM' no campo <b>Período fixo</b>!
+                        </div>
+                    {% endif %}
+                    {% if 'disciplinaEmPeriodoQueJaOcorreu' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! O período informado já foi concluído!
+                        </div>
+                    {% endif %}
+                    {% if 'disciplinaEmPeriodoSuperiorDisponivel' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! O período informado é superior à quantidade de períodos disponíveis
+                            para a conclusão do curso!
+                        </div>
+                    {% endif %}
+                    {% if 'disciplinaACursarJaCadastrada' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! Esta disciplina já está cadastrada!
+                        </div>
+                    {% endif %}
+                    {% if 'disciplinaACursarPeriodoAnteriorOuIgualRequisito' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! Tentativa de fixação da disciplina {{ disciplinaPosterior }} no
+                            período {{ periodoCadastro }}, que é anterior ou igual ao
+                            período fixado para a disciplina {{ disciplinaAnterior }}, seu pré-requisito.
+                        </div>
+                    {% endif %}
+                    {% if 'requisitoACursarPeriodoSuperiorOuIgualDependente' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! Tentativa de fixação da disciplina {{ disciplinaAnterior }} em
+                            período posterior ou igual ao
+                            período da disciplina {{ disciplinaPosterior }}, que é sua dependente.
+                        </div>
+                    {% endif %}
+                    {% if 'tentativaCadastrarRequisitoUltimoPeriodo' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! Tentativa de fixação de disciplina que é pré-requisito no último
+                            período!
+                        </div>
+                    {% endif %}
+                    {% if 'dependentePeriodoAnteriorRequisitos' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! Esta disciplina possui pré-requisito e, portanto, não pode ser
+                            cadastrada neste período!
+                        </div>
+                    {% endif %}
+                    {% if 'dependentePeriodoAnteriorRelacao' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! Esta disciplina é dependente de outra e, portanto, não pode ser
+                            cadastrada neste período!
+                        </div>
+                    {% endif %}
+                    {% if 'tentativaCadastrarRelacionamentoUltimoPeriodo' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! Tentativa de fixação no último período de disciplina da qual outras
+                            dependem!
+                        </div>
+                    {% endif %}
+                    {% if 'diferencaMaximaEntreDependenteRequisitoSuperiorAoDefinidoRequisitoAnterior' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! A diferença máxima entre períodos das
+                            disciplinas {{ disciplinaPosterior }} e {{ disciplinaAnterior }}, que possuem relação de
+                            pré-requisitos, deve ser de, no
+                            máximo, {{ DIFERENCAMAXIMAPERIODOSPONTUACAORELACAOPREREQUISITO }}
+                            períodos, conforme definição do curso.
+                        </div>
+                    {% endif %}
+                    {% if 'diferencaMaximaEntreDependenteRequisitoSuperiorAoDefinidoDependentePosterior' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! A diferença máxima entre períodos das
+                            disciplinas {{ disciplinaPosterior }} e {{ disciplinaAnterior }}, que possuem relação de
+                            pré-requisitos, deve ser de, no
+                            máximo, {{ DIFERENCAMAXIMAPERIODOSPONTUACAORELACAOPREREQUISITO }}
+                            períodos, conforme
+                            definição do curso.
+                        </div>
+                    {% endif %}
+                    {% if 'disciplinaACursarPeriodoAnteriorDisciplinaRelacionamentoPosterior' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! A disciplina {{ disciplinaPosterior }} não pode estar localizada
+                            em período anterior à da disciplina {{ disciplinaAnterior }}, pois é inter-relacionada com
+                            esta!
+                        </div>
+                    {% endif %}
+                    {% if 'disciplinaACursarPeriodoPosteriorDisciplinaRelacionamentoAnterior' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            A disciplina {{ disciplinaAnterior }} não pode estar localizada
+                            em período posterior à da disciplina {{ disciplinaPosterior }}, pois é inter-relacionada com
+                            esta!
+                        </div>
+                    {% endif %}
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <input type="hidden" id="grade_id" name="grade_id"
+                                           value="{{ grade.id }}" required>
+                                    <label for="grade">Grade</label>
+                                    <input type="text" name="grade" class="form-control" disabled='disabled'
+                                           value="{{ grade.nome }} - {{ grade.curriculo.nome }} - {{ grade.curriculo.curso.nome }} - {{ grade.curriculo.curso.instituicao.sigla }}"
+                                           required/>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <input type="hidden" id="gradeDisciplinaOriginal_id"
+                                               name="gradeDisciplinaOriginal_id"
+                                               value="{{ gradeDisciplinaCursar.gradeDisciplina.id }}" required>
+                                        <label for="gradeDisciplinaOriginal">Disciplina</label>
+                                        <input type="text" name="gradeDisciplinaOriginal" class="form-control"
+                                               disabled='disabled'
+                                               value="{{ gradeDisciplinaCursar.gradeDisciplina.disciplina.nome }} - {{ gradeDisciplinaCursar.gradeDisciplina.disciplina.codigo }}"
+                                               required/>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="form-group">
+                                        <label class="control-label">Período fixo:</label>
+                                        <select class="form-control chosen-select" name="periodoFixo">
+                                            <option value='N' {% if gradeDisciplinaCursar.periodoFixo == False %}
+                                                    selected{% endif %}>Não
+                                            </option>
+                                            <option value='S' {% if gradeDisciplinaCursar.periodoFixo == True %}
+                                                    selected{% endif %}>Sim
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="form-group">
+                                        <label for="periodo">Período:</label>
+                                        <input type="number" name="periodo" class="form-control"
+                                               {% if gradeDisciplinaCursar.periodoFixo %}value="{% if gradeDisciplinaCursar.periodo == None %} {% else %}{{ gradeDisciplinaCursar.periodo|add:gradeDisciplinaCursar.grade.periodoCronologico|add:-1 }}{% endif %}"
+                                                {% else %}value=""{% endif %}/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <button type="submit" class="btn btn-sm btn-primary  pull-left"><i
+                                            class="fa fa-check"></i>
+                                        Salvar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

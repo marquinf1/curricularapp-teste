@@ -1,0 +1,80 @@
+{% extends 'admin/base/base.html' %}
+{% block pageTitle %} Administração de grades {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de grades</h2>
+            <div class="pull-right">
+                <a class="btn btn-sm btn-primary pull-right" title="Voltar"
+                   href="{% url 'grade_index' %}"><i class="fa fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+            {#            <nav aria-label="breadcrumb">#}
+            {#                <ol class="breadcrumb">#}
+            {#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+            {#                </ol>#}
+            {#            </nav>#}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox float-e-margins">
+                <form id="create_form" method="POST" action="{% url 'grade_create' %}">
+                    {% csrf_token %}
+                    <div class="ibox-title">
+                        <h5><strong>Detalhes da grade curricular</strong></h5>
+                    </div>
+                    {% if 'gradeJaCadastrada' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! Já existe uma grade cadastrada para este currículo com este nome!
+                        </div>
+                    {% endif %}
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group" data-toggle="popover"
+                                     title="Currículo ao qual a grade estará vinculada."
+                                     data-placement="top" data-trigger="hover"
+                                     data-content="Selecione o currículo ao qual a grade estará vinculada.">
+                                    <label class="control-label">Currículo:</label>
+                                    <select class="form-control chosen-select" name="curriculo_id"
+                                            title="Currículo ao qual a grade estará vinculada.">
+                                        {% if curriculos %}
+                                            {% for curriculo in curriculos %}
+                                                <option value={{ curriculo.id }}>{{ curriculo.nome }}
+                                                    - {{ curriculo.curso.nome }}
+                                                    - {{ curriculo.curso.instituicao.sigla }}</option>
+                                            {% endfor %}
+                                        {% else %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label for="nome">Nome:</label>
+                                    <input type="text" name="nome" class="form-control" required
+                                           title="Nome da grade" data-toggle="popover" maxlength="20"
+                                           data-placement="top" data-trigger="hover"
+                                           data-content="Informe um nome curto para a grade."/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <button type="submit" class="btn btn-sm btn-primary  pull-left"><i
+                                        class="fa fa-check"></i>
+                                    Salvar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

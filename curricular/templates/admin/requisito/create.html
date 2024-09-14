@@ -1,0 +1,169 @@
+{% extends 'admin/base/base.html' %}
+{% block pageTitle %} Administração de pré-requisitos de disciplinas da grade {% endblock %}
+{% block content %}
+
+    <div class="row wrapper page-heading">
+        <div class="col-lg-12">
+            <h2>Administração de pré-requisitos de disciplinas da grade</h2>
+            <div class="pull-right">
+                <a class="btn btn-sm btn-primary pull-right" title="Voltar"
+                   href="{% url 'grade_index' %}"><i class="fa fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+            {#            <nav aria-label="breadcrumb">#}
+            {#                <ol class="breadcrumb">#}
+            {#                    <li class="breadcrumb-item active" aria-current="page">Home</li>#}
+            {#                </ol>#}
+            {#            </nav>#}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox float-e-margins">
+                <form id="create_form" method="POST" action="{% url 'requisito_create' %}">
+                    {% csrf_token %}
+                    <div class="ibox-title">
+                        <h5><strong>Definir pré-requisitos da disciplina da grade</strong></h5>
+                    </div>
+                    {% if 'successCreate' == message %}
+                        <div class="alert alert-success" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Pré-requisitos cadastrados com sucesso!
+                        </div>
+                    {% endif %}
+                    {% if 'requisitoExistente' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! Uma relação de pré-requisitos envolvendo as disciplinas já foi cadastrada!
+                        </div>
+                    {% endif %}
+                    {% if 'disciplinasIguais' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! Alguma disciplina candidata a pré-requisito igual à disciplina dependente foi selecionada!
+                        </div>
+                    {% endif %}
+                    {% if 'relacionamentoOrdemInversaExistente' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! Algum relacionamento foi cadastrado previamente
+                            utilizando a ordem inversa de algum par de disciplinas de relação de pré-requisito!
+                        </div>
+                    {% endif %}
+                    {% if 'requisitoUltimoPeriodo' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! Alguma disciplina candidata a pré-requisito foi fixada
+                            no último período!
+                        </div>
+                    {% endif %}
+                    {% if 'dependentePrimeiroPeriodo' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! A disciplina dependente foi fixada no primeiro período!
+                        </div>
+                    {% endif %}
+                    {% if 'dependenteAnteriorPeriodoAnteriorOuIgualRequisito' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! O período fixado para a disciplina dependente é anterior ou igual ao período fixado para algum dos pré-requisitos!
+                        </div>
+                    {% endif %}
+                    {% if 'distanciaDependenteRequisitoMaiorQueMaximoDefinido' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                            Operação não realizada! A distância entre os períodos fixados!
+                        </div>
+                    {% endif %}
+                    {% if 'diferencaMaximaEntreDependenteRequisitoSuperiorAoDefinidoRequisitoAnterior' == message %}
+                        <div class="alert alert-danger" role="alert">
+                            <button class="close" data-dismiss="alert">
+                                <small><sup>x</sup></small>
+                            </button>
+                                Operação não realizada! A diferença máxima entre períodos fixados para as
+                                disciplinas {{ disciplinaPosterior }} e {{ disciplinaAnterior }}, que possuem relação de
+                                pré-requisitos, deve ser de, no máximo, {{ DIFERENCAMAXIMAPERIODOSPONTUACAORELACAOPREREQUISITO }}
+                                períodos, conforme definição do curso. Os períodos fixados para as disciplinas {{ disciplinaPosterior }}
+                                e {{ disciplinaAnterior }} são, respectivamente, {{ periodoPosterior }} e {{ periodoRequisito }}.
+                        </div>
+                    {% endif %}
+
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <input type="hidden" id="grade_id" name="grade_id"
+                                           value="{{ grade.id }}">
+                                    <label for="grade">Grade</label>
+                                    <input type="text" name="grade" class="form-control" disabled='disabled'
+                                           value="{{ grade.nome }} - {{ grade.curriculo.nome }} - {{ grade.curriculo.curso.nome }} - {{ grade.curriculo.curso.instituicao.sigla }}"/>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group" data-toggle="popover"
+                                           title="Disciplina dependente de pré-requisito"
+                                           data-placement="top" data-trigger="hover"
+                                           data-content="Selecione a disciplina que é dependente de pré-requisito.">
+                                    <label class="control-label">Disciplina:</label>
+                                    <select class="form-control chosen-select" name="gradeDisciplina_id" title="Disciplina dependente de pré-requisito">
+                                        {% if gradesDisciplinas %}
+                                            {% for gradeDisciplina in gradesDisciplinas %}
+                                                <option value={{ gradeDisciplina.id }}>{{ gradeDisciplina.disciplina.nome }}
+                                                    - {{ gradeDisciplina.disciplina.codigo }}
+                                                </option>
+                                            {% endfor %}
+                                        {% else %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group" title="Pré-requisito da disciplina dependente."
+                                            data-toggle="popover"
+                                           data-placement="top" data-trigger="hover"
+                                           data-content="Selecione um ou mais pré-requisitos da disciplina dependente.">
+                                    <label class="control-label">Pré-requisitos:</label>
+                                    <select name="prerequisitos[]" class="chosen-select" required
+                                            multiple data-placeholder="Selecione" title="Pré-requisito da disciplina dependente.">
+                                        {% if gradesDisciplinas %}
+                                            {% for gradeDisciplinaSelection in gradesDisciplinas %}
+                                                <option value="{{ gradeDisciplinaSelection.id }}"> {{ gradeDisciplinaSelection.disciplina.nome }}
+                                                    - {{ gradeDisciplinaSelection.disciplina.codigo }}
+                                                </option>
+                                            {% endfor %}
+                                        {% else %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <button type="submit" class="btn btn-sm btn-primary  pull-left"><i
+                                        class="fa fa-check"></i>
+                                    Salvar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

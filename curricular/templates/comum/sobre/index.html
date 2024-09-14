@@ -1,0 +1,61 @@
+{% extends 'comum/base/base.html' %}
+{% load static %}
+{% block pageTitle %} Sobre {% endblock %}
+
+{% block content %}
+<div class="row wrapper page-heading">
+    <div class="col-lg-12 margin-tb">
+        <h2>Sobre o Curricular</h2>
+    </div>
+
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5>Curricular</h5>
+        </div>
+
+        <div class="ibox-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="contact-box center-version">
+
+                        <a href="#">
+<!--                           <div class="row">-->
+<!--                                <a href="http://portal.ufvjm.edu.br/">-->
+                                <img class="image-header-sys-logo-relatorio" hspace="20"
+                                     src="{% static 'images/ufvjmsemassinatura.png' %}">
+<!--                                </a>-->
+<!--                                 <a href="https://curricularapp.herokuapp.com/">-->
+                                <img class="image-header-sys-logo-relatorio" hspace="20"
+                                     src="{% static 'images/curricularsemfundo2.png' %}">
+<!--                                 </a>-->
+<!--                                <a href="http://decom.ufvjm.edu.br/">-->
+                                <img class="image-header-sys-logo-relatorio" hspace="20"
+                                     src="{% static 'images/oia.png' %}">
+<!--                                </a>-->
+<!--                           </div>-->
+
+
+
+                            <h3 class="m-b-xs"><strong>Laboratório de Otimização e Inteligência Artificial -
+                                OIA</strong></h3>
+
+                            <div class="font-bold">Departamento de Computação - DECOM</div>
+                            <address class="m-t-md">
+                                Univeridade Feredal dos Vales do Jequitinhonha e Mucuri - UFVJM<br>
+                                Diamantina - MG<br>
+                            </address>
+                        </a>
+{#                        <div class="contact-box-footer">#}
+{#                            <div class="m-t-xs btn-group">#}
+{#                                <a class="btn btn-xs btn-primary" href="https://docs.google.com/forms/d/e/1FAIpQLSe8grPRPEA2x8JYNV3eaS8lJ0au8BwtZ9gOs_1kYb1OSlGLGw/viewform?embedded=true"><i#}
+{#                                        target="_blank"></i>Clique aqui, e nos dê a sua opinião sobre o Curricular!</a>#}
+{#                            </div>#}
+{#                        </div>#}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
